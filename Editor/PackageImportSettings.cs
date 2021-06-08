@@ -1,53 +1,57 @@
-﻿using System;
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
 
-[InitializeOnLoad]
-public class PackageImportSettings
-{
-    static PackageImportSettings()
-    {
-#if UNITY_EDITOR
-        //Copy WebGL templates from package to project
-        string srcDir = "Packages/com.zappar.uar/WebGLTemplates";
-        string destDir = Application.dataPath + "/WebGLTemplates";
-        DirectoryCopy(srcDir, destDir, true);
-#endif
-    }
 
-    private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+    [InitializeOnLoad]
+    public class PackageImportSettings
     {
-        // Get the subdirectories for the specified directory.
-        DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-
-        if (!dir.Exists)
+        static PackageImportSettings()
         {
-            //Debug.Log("Source directory does not exist or could not be found: " + sourceDirName);
-            return;
+            if (Application.isPlaying) return;
+
+            //Copy WebGL templates from package to project
+            string srcDir = "Packages/com.zappar.uar/WebGLTemplates";
+            string destDir = Application.dataPath + "/WebGLTemplates";
+            DirectoryCopy(srcDir, destDir, true);
         }
 
-        DirectoryInfo[] dirs = dir.GetDirectories();
-
-        // If the destination directory doesn't exist, create it.       
-        Directory.CreateDirectory(destDirName);
-
-        // Get the files in the directory and copy them to the new location.
-        FileInfo[] files = dir.GetFiles();
-        foreach (FileInfo file in files)
+        private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
-            string tempPath = Path.Combine(destDirName, file.Name);
-            file.CopyTo(tempPath, false);
-        }
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
 
-        // If copying subdirectories, copy them and their contents to new location.
-        if (copySubDirs)
-        {
-            foreach (DirectoryInfo subdir in dirs)
+            if (!dir.Exists)
             {
-                string tempPath = Path.Combine(destDirName, subdir.Name);
-                DirectoryCopy(subdir.FullName, tempPath, copySubDirs);
+                //Debug.Log("Source directory does not exist or could not be found: " + sourceDirName);
+                return;
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            // If the destination directory doesn't exist, create it.       
+            Directory.CreateDirectory(destDirName);
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                if (file.Extension == ".meta")
+                    continue;
+
+                string tempPath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(tempPath, true);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string tempPath = Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, tempPath, copySubDirs);
+                }
             }
         }
     }
-}
