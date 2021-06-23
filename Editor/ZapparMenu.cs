@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 namespace Zappar.Editor
@@ -86,6 +86,18 @@ namespace Zappar.Editor
             PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.dataCaching = true;
+
+            //Build Settings
+            EditorUserBuildSettings.development = false;
+#if UNITY_2020_1_OR_NEWER
+            PlayerSettings.WebGL.template = "Zappar2020";
+#elif UNITY_2018_1_OR_NEWER
+            PlayerSettings.WebGL.template = "Zappar";
+#else
+            Debug.LogError("Please upgrade to newer versions of Unity");
+#endif
+#else
+            PlayerSettings.stripEngineCode = true;
 
             //Build Settings
             EditorUserBuildSettings.development = false;
