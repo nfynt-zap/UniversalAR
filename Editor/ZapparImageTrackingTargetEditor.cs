@@ -37,7 +37,9 @@ namespace Zappar.Editor
                 //clear the preview
                 if (myScript.m_ImageTracker != IntPtr.Zero) Z.ImageTrackerDestroy(myScript.m_ImageTracker);
                 if (myScript.m_Pipeline != IntPtr.Zero) Z.PipelineDestroy(myScript.m_Pipeline);
+                
                 DestroyImmediate(myScript?.PreviewImagePlane);
+                EditorUtility.SetDirty(myScript?.gameObject);
             }
         }
 
@@ -99,10 +101,17 @@ namespace Zappar.Editor
             texture.LoadRawTextureData(previewData);
             texture.Apply();
 
+#if ZAPPAR_SRP
+            Material material = new Material(Shader.Find("Zappar/URPUnlitTexture"));
+            material.SetTexture("_BaseMap", texture);
+            //material.SetTextureScale("_BaseMap", new Vector2(-1, 1));
+            Vector3 scale = myScript.PreviewImagePlane.transform.localScale;
+            myScript.PreviewImagePlane.transform.localScale = new Vector3(scale.x * -1, scale.y, scale.z);
+#else
             Material material = new Material(Shader.Find("Unlit/Texture"));
             material.SetTextureScale("_MainTex", new Vector2(-1, 1));
             material.mainTexture = texture;
-
+#endif
             myScript.PreviewImagePlane.GetComponent<Renderer>().material = material;
         }
 
