@@ -49,3 +49,12 @@ You can access additional project level settings of UAR from `Zappar/Editor/Open
 
 The settings currently include options to enable/disable image preview for image tracking and some debugging options.
 
+## Extras: Enabling Realtime Reflection
+
+![alt text](./Temp~/snap4.jpg "Realtime reflection")
+
+To enable the realtime reflection for your reflective materials, follow the following process:
+1. Make sure realtime reflection is enabled from Unity project settings. `Edit/ProjectSettings/Quality` and check `Realtime Reflection Probes`.
+2. Enable `Enable Realtime Refections` from menu `Zappar/Editor/OpenUARSettings`. This will add a new layer `ZapparReflect` to your project
+3. Right click on `ZapparCameraRear` (Camera object containing `ZapparCamera` script) and select `Zappar/AddRealtimeReflectionProbe`.
+4. Adjust the `ZapparReflectionProbe` properties according to your project needs.

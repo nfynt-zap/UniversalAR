@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using UnityEngine.Rendering;
 #if ZAPPAR_SRP
 using UnityEngine.Rendering.Universal;
 #endif
@@ -14,6 +15,15 @@ namespace Zappar.Editor
             GameObject camera = (GameObject)Resources.Load("Prefabs/Zappar Camera Rear");
             GameObject go = Instantiate(camera, Vector3.zero, Quaternion.identity);
             Undo.RegisterCreatedObjectUndo(go, "New camera added");
+
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            if(settings.EnableRealtimeReflections)
+            {
+                GameObject rp = new GameObject("ZReflectionProbe");
+                rp.transform.SetParent(go.transform);
+                rp.AddComponent<ZapparReflectionProbe>();
+            }
+
 #if ZAPPAR_SRP
             ZapparUpdateSceneToSRP();
 #endif
@@ -172,14 +182,20 @@ namespace Zappar.Editor
             //Build Settings
             EditorUserBuildSettings.development = false;
 #if UNITY_2020_1_OR_NEWER
+            PlayerSettings.WebGL.decompressionFallback = true;
             PlayerSettings.WebGL.template = "Zappar2020";
 #elif UNITY_2018_1_OR_NEWER
             PlayerSettings.WebGL.template = "Zappar";
 #else
             Debug.LogError("Please upgrade to newer versions of Unity");
 #endif
+#elif UNITY_ANDROID
+
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            
+            //Build Settings
+            EditorUserBuildSettings.development = false;
 #else
-            PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.WebGL, ManagedStrippingLevel.High);
             PlayerSettings.stripEngineCode = true;
 
             //Build Settings
@@ -193,6 +209,62 @@ namespace Zappar.Editor
         static void ZapparOpenZapworksCLI()
         {
             Application.OpenURL("https://www.npmjs.com/package/@zappar/zapworks-cli");
+        }
+
+        [MenuItem("GameObject/Zappar/Add Realtime Reflection Probe", false, 10)]
+        static void CreateZapparReflectionProbe(MenuCommand menuCommand)
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            if (!settings.EnableRealtimeReflections)
+            {
+                Debug.Log("Please enable the realtime reflection from UAR settings! Zappar/Editor/OpenUARSettings");
+                return;
+            }
+
+            GameObject parent = menuCommand.context as GameObject;
+            if(parent?.GetComponent<ZapparCamera>()==null)
+            {
+                Debug.LogError("Can't find zappar camera componnet on parent");
+                return;
+            }
+
+            if(GameObject.FindObjectOfType<ZapparReflectionProbe>()!=null)
+            {
+                Debug.Log("A Reflection probe component is already present");
+                Selection.activeGameObject = FindObjectOfType<ZapparReflectionProbe>().gameObject;
+                return;
+            }
+
+            GameObject go = new GameObject("ZReflectionProbe");
+            go.AddComponent<ZapparReflectionProbe>();
+            //go.transform.SetParent(parent.transform);
+            Undo.RegisterCreatedObjectUndo(go, "Zappar reflection probe added");
+            Selection.activeObject = go;
+
+            EditorUtility.SetDirty(go);
+        }
+
+        [MenuItem("GameObject/Zappar/Invert Mesh Surface", false, 10)]
+        static void InvertSelectedMeshSurface(MenuCommand menuCommand)
+        {
+            GameObject parent = menuCommand.context as GameObject;
+            
+            MeshFilter meshF = parent?.GetComponent<MeshFilter>();
+
+            if (meshF == null || meshF.sharedMesh == null)
+            {
+                Debug.Log("No mesh filter or instantiated mesh found on object");
+                return;
+            }
+
+            Mesh mesh = (Mesh)Instantiate(meshF.sharedMesh);
+            ZapparUtilities.InvertMeshSurface(ref mesh);
+            string name = mesh.name;
+            name = name.EndsWith("_Inverted") ? name : name + "_Inverted";
+            mesh.name = name;
+            meshF.sharedMesh = mesh;
+
+            EditorUtility.SetDirty(parent);
         }
     }
 }

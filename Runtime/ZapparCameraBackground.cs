@@ -6,12 +6,12 @@ namespace Zappar
 {
     public class ZapparCameraBackground : MonoBehaviour
     {
-
-        //[Tooltip("Material must have an Unlit/CameraBackgroundShader shader attached")]
-        private Material m_CameraMaterial;
+        private Material m_CameraMaterial=null;
 
         private bool m_Initialised = false;
         private Texture2D m_CamTexture = null;
+
+        public Texture2D GetCameraTexture => m_CamTexture;
 
         private void Awake()
         {
@@ -81,15 +81,12 @@ namespace Zappar
                 return;
             }
 
-            IntPtr pipeline = ZapparCamera.Instance.GetPipeline();
-            bool isMirrored = ZapparCamera.Instance.IsMirrored();
+            GetComponent<Camera>().projectionMatrix = Z.PipelineProjectionMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height);
 
-            GetComponent<Camera>().projectionMatrix = Z.PipelineProjectionMatrix(pipeline, Screen.width, Screen.height);
-
-            Matrix4x4 textureMatrix = Z.PipelineCameraFrameTextureMatrix(pipeline, Screen.width, Screen.height, isMirrored);
+            Matrix4x4 textureMatrix = Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height, ZapparCamera.Instance.IsMirrored);
             m_CameraMaterial.SetMatrix("_nativeTextureMatrix", textureMatrix);
 
-            m_CamTexture = Z.PipelineCameraFrameTexture(pipeline);
+            m_CamTexture = Z.PipelineCameraFrameTexture(ZapparCamera.Instance.GetPipeline);
             if (m_CamTexture != null)
                 m_CameraMaterial.mainTexture = m_CamTexture;
 

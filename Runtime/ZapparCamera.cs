@@ -200,15 +200,9 @@ namespace Zappar
             return m_cameraPose;
         }
 
-        public bool IsMirrored()
-        {
-            return m_isMirrored;
-        }
+        public bool IsMirrored => m_isMirrored;
 
-        public IntPtr GetPipeline()
-        {
-            return m_pipeline;
-        }
+        public IntPtr GetPipeline => m_pipeline;
 
     }
 }
