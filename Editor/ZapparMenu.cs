@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEngine.Rendering;
+using UnityEditor.PackageManager.Requests;
+using UnityEditor.PackageManager;
 #if ZAPPAR_SRP
 using UnityEngine.Rendering.Universal;
 #endif
@@ -9,6 +11,8 @@ namespace Zappar.Editor
 {
     public class ZapparMenu : MonoBehaviour
     {
+        private static ListRequest packageListRequest = null;
+
         [MenuItem("Zappar/Camera")]
         static void ZapparCreateCamera()
         {
@@ -61,7 +65,7 @@ namespace Zappar.Editor
             Undo.RegisterCreatedObjectUndo(go, "New instant tracker");
         }
 
-        [MenuItem("Zappar/Utilities/Full Head Model")]
+        [MenuItem("Zappar/Utilities/Full Head Model", false, 0)]
         static void ZapparCreateFullHeadModel()
         {
             GameObject headModel = (GameObject)Resources.Load("Prefabs/Zappar Full Head Model");
@@ -69,7 +73,7 @@ namespace Zappar.Editor
             Undo.RegisterCreatedObjectUndo(go, "New head model");
         }
 
-        [MenuItem("Zappar/Utilities/Full Head Depth Mask")]
+        [MenuItem("Zappar/Utilities/Full Head Depth Mask", false, 0)]
         static void ZapparCreateFullHeadDepthMask()
         {
             GameObject headDepthMask = (GameObject)Resources.Load("Prefabs/Zappar Face Depth Mask");
@@ -77,20 +81,20 @@ namespace Zappar.Editor
             Undo.RegisterCreatedObjectUndo(go, "New depth mask");
         }
 
-        [MenuItem("Zappar/Utilities/Documentation")]
+        [MenuItem("Zappar/Utilities/Documentation", false, 0)]
         static void ZapparOpenDocumentation()
         {
             Application.OpenURL("https://docs.zap.works/universal-ar/unity");
         }
 
-        [MenuItem("Zappar/Editor/OpenUARSettings")]
+        [MenuItem("Zappar/Editor/OpenUARSettings", false, 1)]
         static void ZapparOpenUarSettings()
         {
             SettingsService.OpenProjectSettings("Project/ZapparUARSettings");
         }
 
 #if ZAPPAR_SRP
-        [MenuItem("Zappar/Editor/Update Project For StandardPipeline")]
+        [MenuItem("Zappar/Editor/Update Project For StandardPipeline", false, 1)]
         static void ZapparUpdateProjectToNonSRP()
         {
             Debug.Log("Updating zappar to use standard pipeline");
@@ -112,7 +116,7 @@ namespace Zappar.Editor
             PlayerSettings.SetScriptingDefineSymbolsForGroup(group, symbols);
         }
 
-        [MenuItem("Zappar/Editor/Update Zappar Scene For SRP")]
+        [MenuItem("Zappar/Editor/Update Zappar Scene For SRP", false, 1)]
         static void ZapparUpdateSceneToSRP()
         {
             Debug.Log("Updating current scene to use Unity-SRP");
@@ -146,13 +150,14 @@ namespace Zappar.Editor
             }
         }
 #else
-        [MenuItem("Zappar/Editor/Update Project For SRP")]
+        [MenuItem("Zappar/Editor/Update Project For SRP", false, 1)]
         static void ZapparUpdateProjectToSRP()
         {
             Debug.Log("Updating zappar project to use Unity-SRP");
+            const string zapparSrp = "ZAPPAR_SRP";
             BuildTarget target = EditorUserBuildSettings.activeBuildTarget;
             BuildTargetGroup group = BuildPipeline.GetBuildTargetGroup(target);
-            const string zapparSrp = "ZAPPAR_SRP";
+
             string symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
 
             if (symbols.Contains(zapparSrp))
@@ -161,12 +166,44 @@ namespace Zappar.Editor
                 return;
             }
 
+            //Check if Universal Rendering package has been imported already
+            packageListRequest = Client.List(true, true);
+            EditorApplication.update += PackageProgress;
+
             PlayerSettings.SetScriptingDefineSymbolsForGroup(group, symbols + ";" + zapparSrp);
         }
 #endif
 
 
-        [MenuItem("Zappar/Editor/Update Project Settings To Publish")]
+        private static void PackageProgress()
+        {
+            if(packageListRequest!= null && packageListRequest.IsCompleted)
+            {
+                if(packageListRequest.Status == StatusCode.Success)
+                {
+                    bool avail = false;
+                    foreach(var pack in packageListRequest.Result)
+                    {
+                        if (pack.packageId.ToLower().Contains("com.unity.render-pipelines.universal"))
+                        { avail = true; break; }
+                    }
+
+                    if(!avail)
+                    {
+                        //Raise dialog to import URP
+                        EditorUtility.DisplayDialog("Zappar Notification", "Please add the Universal Rendering Pipeline package to your project!", "OK");
+                    }
+                }else if(packageListRequest.Status >= StatusCode.Failure)
+                {
+                    Debug.LogError("Failed to check for Universal Rendering package. Error: " + packageListRequest.Error.message);
+                }
+
+                EditorApplication.update -= PackageProgress;
+                packageListRequest = null;
+            }
+        }
+
+        [MenuItem("Zappar/Editor/Update Project Settings To Publish", false, 1)]
         static void ZapparPublishSettings()
         {
 #if UNITY_WEBGL
@@ -183,9 +220,9 @@ namespace Zappar.Editor
             EditorUserBuildSettings.development = false;
 #if UNITY_2020_1_OR_NEWER
             PlayerSettings.WebGL.decompressionFallback = true;
-            PlayerSettings.WebGL.template = "Zappar2020";
+            PlayerSettings.WebGL.template = "PROJECT:Zappar2020";
 #elif UNITY_2018_1_OR_NEWER
-            PlayerSettings.WebGL.template = "Zappar";
+            PlayerSettings.WebGL.template = "PROJECT:Zappar";
 #else
             Debug.LogError("Please upgrade to newer versions of Unity");
 #endif
@@ -205,7 +242,7 @@ namespace Zappar.Editor
             Debug.Log("Done updating project setting for publish");
         }
 
-        [MenuItem("Zappar/Utilities/Install CLI")]
+        [MenuItem("Zappar/Utilities/Install CLI", false, 0)]
         static void ZapparOpenZapworksCLI()
         {
             Application.OpenURL("https://www.npmjs.com/package/@zappar/zapworks-cli");
