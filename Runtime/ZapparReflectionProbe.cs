@@ -25,6 +25,7 @@ namespace Zappar
         private Transform cameraTransform = null;
         private MeshRenderer camTextureProjectionSurface = null;
         private ReflectionProbe reflectionProbe = null;
+        private ZapparCameraBackground cameraBackground = null;
 
         private bool m_hasInitialised = false;
         private bool m_isMirrored = false;
@@ -66,6 +67,7 @@ namespace Zappar
             Camera zapCam = ZapparCamera.Instance.gameObject.GetComponent<Camera>();
             zapCam.cullingMask &= ~cullingMask;
             cameraTransform = ZapparCamera.Instance.gameObject.transform;
+            cameraBackground = cameraTransform.GetComponentInChildren<ZapparCameraBackground>();
 
             camTextureProjectionSurface = gameObject.transform.GetComponentInChildren<MeshRenderer>(true);
             if(camTextureProjectionSurface==null)
@@ -108,8 +110,8 @@ namespace Zappar
                 return;
             }
 
-            camTextureProjectionSurface.material.SetMatrix("_nativeTextureMatrix", Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height, ZapparCamera.Instance.IsMirrored));
-            camTextureProjectionSurface.material.mainTexture = Z.PipelineCameraFrameTexture(ZapparCamera.Instance.GetPipeline);
+            camTextureProjectionSurface.material.SetMatrix("_nativeTextureMatrix", cameraBackground.GetTextureMatrix);
+            camTextureProjectionSurface.material.mainTexture = cameraBackground.GetCameraTexture;
             camTextureProjectionSurface.transform.rotation = cameraTransform.rotation * Quaternion.AngleAxis(90, cameraTransform.up);
 
             reflectionProbe?.RenderProbe();
