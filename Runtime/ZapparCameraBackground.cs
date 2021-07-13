@@ -88,9 +88,7 @@ namespace Zappar
 
             Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, ref textureMatElements, Screen.width, Screen.height, ZapparCamera.Instance.IsMirrored);
 
-            for (int i = 0; i < 4; i++)
-                for (int k = 0; k < 4; k++)
-                    textureMatrix[k,i] = textureMatElements[i * 4 + k];
+            UpdateTextureMatrix();
 
             m_CameraMaterial.SetMatrix("_nativeTextureMatrix", textureMatrix);
 
@@ -100,6 +98,25 @@ namespace Zappar
 
         }
 
+        private void UpdateTextureMatrix()
+        {
+            textureMatrix[0, 0] = textureMatElements[0];
+            textureMatrix[1, 0] = textureMatElements[1];
+            textureMatrix[2, 0] = textureMatElements[2];
+            textureMatrix[3, 0] = textureMatElements[3];
+            textureMatrix[0, 1] = textureMatElements[4];
+            textureMatrix[1, 1] = textureMatElements[5];
+            textureMatrix[2, 1] = textureMatElements[6];
+            textureMatrix[3, 1] = textureMatElements[7];
+            textureMatrix[0, 2] = textureMatElements[8];
+            textureMatrix[1, 2] = textureMatElements[9];
+            textureMatrix[2, 2] = textureMatElements[10];
+            textureMatrix[3, 2] = textureMatElements[11];
+            textureMatrix[0, 3] = textureMatElements[12];
+            textureMatrix[1, 3] = textureMatElements[13];
+            textureMatrix[2, 3] = textureMatElements[14];
+            textureMatrix[3, 3] = textureMatElements[15];
+        }
 
         private void OnDestroy()
         {

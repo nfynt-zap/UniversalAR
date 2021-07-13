@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - WebGL runtime error for Unity2020 build due to unsupported compression setting.
 - Unity WebGL template path wasn't updating to Zappar2020 on `Zappar/Editor/UpdateProjectSettingsToPublish`.
 - Dialog pop-up when enabling SRP for Zappar package and Unity Universal Rendering Package is not imported in project.
+- Editor view for Zappar Face Mesh.
 
 
 ## [1.1.0-preview.2] - 2021-07-05

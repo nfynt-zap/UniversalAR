@@ -150,7 +150,10 @@ namespace Zappar
 
         public void RegisterCameraListener(ICameraListener listener)
         {
-            listeners.Add(listener);
+            if (!listeners.Contains(listener))
+            {
+                listeners.Add(listener);
+            }
         }
 
         private void UpdatePose()
