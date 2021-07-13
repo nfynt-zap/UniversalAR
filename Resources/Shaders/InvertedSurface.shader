@@ -32,15 +32,17 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float4x4 _nativeTextureMatrix;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = mul(_nativeTextureMatrix, float4(v.uv, 0, 1)).xy;
+                //o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 // For mirroring image to inside of the sphere
-                o.uv.x = 1.0 - o.uv.x; 
-                o.uv.y = 1.0 - o.uv.y;
+                //o.uv.x = 1.0 - o.uv.x; 
+                //o.uv.y = 1.0 - o.uv.y;
                 return o;
             }
 

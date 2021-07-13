@@ -72,7 +72,7 @@ namespace Zappar
             {
                 GameObject go = GetTextureProjectionSurface();
                 go.transform.SetParent(this.transform);
-                go.transform.localScale = new Vector3(-1, 1, 1) * 100f;
+                go.transform.localScale = new Vector3(100, 100, 100);
                 camTextureProjectionSurface = go.GetComponent<MeshRenderer>();
                 go.layer = LayerMask.NameToLayer(ReflectionLayer);
             }
@@ -108,8 +108,10 @@ namespace Zappar
                 return;
             }
 
+            camTextureProjectionSurface.material.SetMatrix("_nativeTextureMatrix", Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height, ZapparCamera.Instance.IsMirrored));
             camTextureProjectionSurface.material.mainTexture = Z.PipelineCameraFrameTexture(ZapparCamera.Instance.GetPipeline);
-            camTextureProjectionSurface.transform.localRotation = Quaternion.Inverse(cameraTransform.rotation);
+            camTextureProjectionSurface.transform.rotation = cameraTransform.rotation * Quaternion.AngleAxis(90, cameraTransform.up);
+
             reflectionProbe?.RenderProbe();
         }
 
