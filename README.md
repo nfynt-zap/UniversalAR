@@ -1,7 +1,8 @@
+# Universal AR for Unity
 
-# Universal AR Unity Package
+This library allows you use Zappar's best-in-class AR technology with content built using the 3D rendering platform Unity, including face tracking, image tracking and instant world tracking.
 
-This project is a Unity package wrapping all ZCV internals and features like - image tracking, face tracking, face mesh, and instant tracking. More details about the features and pipeline can be read here: https://docs.zap.works/universal-ar/unity/
+In addition to this file, documentation can be found over at our [Universal AR for Unity documentation site](https://docs.zap.works/universal-ar/unity/).
 
 You may also be interested in:
 
@@ -50,15 +51,14 @@ The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set 
         * [Face Mesh](#face-mesh)
   * [Links and Resources](#links-and-resources)
 
-
 ## Importing UAR package into Unity
 
 You can import the package directly from the editor by following these steps:
-1. Opening the `Package Manager` from `Window>Package Manager` from Editor
+1. Opening the `Package Manager` from `Window > Package Manager` from Editor
 2. Locate the `+` button on top left corner and select `Add package from git URL...`
 3. Enter the following URL: `https://github.com/zappar-xr/universal-ar-unity.git`
 
-This will automatically fetch the latest version of the package from Github.
+This will automatically fetch the latest version of the package from Github. Please note it may take a minute or two for the package to appear in the list.
 
 Another option is to define the `universal-ar-unity` package as dependency in your projects' `manifest.json` file located under `Root_Directory>Packages`.
 
