@@ -112,7 +112,7 @@ namespace Zappar
 
             camTextureProjectionSurface.material.SetMatrix("_nativeTextureMatrix", cameraBackground.GetTextureMatrix);
             camTextureProjectionSurface.material.mainTexture = cameraBackground.GetCameraTexture;
-            camTextureProjectionSurface.transform.rotation = cameraTransform.rotation * Quaternion.AngleAxis(90, cameraTransform.up);
+            camTextureProjectionSurface.transform.rotation = cameraTransform.rotation * Quaternion.AngleAxis(90, Vector3.up);
 
             reflectionProbe?.RenderProbe();
         }
