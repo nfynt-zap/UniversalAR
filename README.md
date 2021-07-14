@@ -1,10 +1,25 @@
-- [Universal AR Unity Package](#universal-ar-unity-package)
+
+# Universal AR Unity Package
+
+This project is a Unity package wrapping all ZCV internals and features like - image tracking, face tracking, face mesh, and instant tracking. More details about the features and pipeline can be read here: https://docs.zap.works/universal-ar/unity/
+
+You may also be interested in:
+
+- [Zappar for A-Frame](https://www.npmjs.com/package/@zappar/zappar-aframe) (@zappar/zappar-aframe)
+- [Zappar for ThreeJS](https://www.npmjs.com/package/@zappar/zappar-threejs) (@zappar/zappar-threejs)
+- [Zappar for JavaScript](https://www.npmjs.com/package/@zappar/zappar) (@zappar/zappar), if you'd like to build content with a different 3D rendering platform
+- [ZapWorks Studio](https://zap.works/studio), a full 3D development environment built for AR, VR and MR
+
+The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set of command line utilities that will be useful to you during development.
+
+# Table of Contents
+
   * [Importing UAR package into Unity](#importing-uar-package-into-unity)
   * [Platform support](#platform-support)
     + [Android](#android)
     + [iOS](#ios)
     + [WebGL](#webgl)
-  * [Supporting Unity Scriptable Render Pipeline (SRP)](#supporting-unity-scriptable-render-pipeline--srp-)
+  * [Supporting Unity Scriptable Render Pipeline (SRP)](#supporting-unity-scriptable-render-pipeline)
   * [Importing Examples](#importing-examples)
   * [Zappar Universal AR Settings](#zappar-universal-ar-settings)
   * [Licensing](#licensing)
@@ -14,7 +29,8 @@
     + [Face Mesh Prefab](#face-mesh-prefab)
     + [Image Tracker Prefab](#image-tracker-prefab)
     + [Instant Tracking Prefab](#instant-tracking-prefab)
-  * [Extras: Enabling Realtime Reflection](#extras--enabling-realtime-reflection)
+  * [Extras](#extras)
+    + [Enabling Realtime Reflection](#enabling-realtime-reflection)
   * [Advanced Usage](#advanced-usage)
     + [Pipelines and Camera Processing](#pipelines-and-camera-processing)
       - [Constructing and Managing Pipelines](#constructing-and-managing-pipelines)
@@ -33,20 +49,6 @@
         * [Face Anchors](#face-anchors)
         * [Face Mesh](#face-mesh)
   * [Links and Resources](#links-and-resources)
-
-
-# Universal AR Unity Package
-
-This project is a Unity package wrapping all ZCV internals and features like - image tracking, face tracking, face mesh, and instant tracking. More details about the features and pipeline can be read here: https://docs.zap.works/universal-ar/unity/
-
-You may also be interested in:
-
-- [Zappar for A-Frame](https://www.npmjs.com/package/@zappar/zappar-aframe) (@zappar/zappar-aframe)
-- [Zappar for ThreeJS](https://www.npmjs.com/package/@zappar/zappar-threejs) (@zappar/zappar-threejs)
-- [Zappar for JavaScript](https://www.npmjs.com/package/@zappar/zappar) (@zappar/zappar), if you'd like to build content with a different 3D rendering platform
-- [ZapWorks Studio](https://zap.works/studio), a full 3D development environment built for AR, VR and MR
-
-The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set of command line utilities that will be useful to you during development.
 
 
 ## Importing UAR package into Unity
@@ -128,9 +130,9 @@ The ZapWorks CLI does not send a `Content-Encoding` header for Unity's gzip file
 ZapWorks provides complete serving and hosting for your WebGL-based experiences, should you wish to use it. Find out more over at our (Publishing and Hosting page)[https://docs.zap.works/universal-ar/publishing-and-hosting/] at our documentation site.
 
 
-## Supporting Unity Scriptable Render Pipeline (SRP)
+## Supporting Unity Scriptable Render Pipeline
 
-In order to use the UAR SDK with Unity SRP, you'll need to update the zappar editor settings. This setting can be accessed from Zappar menu `Editor/Update Project For SRP`.
+In order to use the UAR SDK with Unity Scriptable Render Pipeline (SRP), you'll need to update the zappar editor settings. This setting can be accessed from Zappar menu `Editor/Update Project For SRP`.
 
 ![alt text](./Temp~/snap2.jpg "Zappar menu options")
 
@@ -209,7 +211,9 @@ You can then import the resulting `.zpt` file into the following folder `Assets/
 Use menu option `Zappar/Instant Tracker` to place Instant world tracking prefab into your hierarchy. Instant world tracking refers to the ability to attach content to a point in the world, without using a tracking image or marker. You do not need to specify any properties to use Instant World Tracking. Simply attach your content as a child of the ZapparInstantTracking GameObject and it will appear in the correct location. The Zappar Instant Tracker prefab will keep the content in front of the camera until the user taps on the screen, at which point the content will appear to remain anchored in place. You can override this tap and place behavior as you wish. Please refer to the [Instant Tracking API](#instant-world-tracking) section for further details.
 
 
-## Extras: Enabling Realtime Reflection
+## Extras
+
+### Enabling Realtime Reflection
 
 ![alt text](./Temp~/snap4.jpg "Realtime reflection")
 
