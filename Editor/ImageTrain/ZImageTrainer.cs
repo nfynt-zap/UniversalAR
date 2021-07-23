@@ -22,6 +22,7 @@ namespace Zappar.Editor
     public class ZImageTrainer : EditorWindow
     {
         public static ZImageTrainerParams myParams = null;
+        private static bool showAdvanced = false;
         private string zptPath;
 
         [MenuItem("Zappar/Editor/Open Image Trainer", false, 1)]
@@ -43,10 +44,13 @@ namespace Zappar.Editor
             if (myParams == null) myParams = new ZImageTrainerParams();
 
             GUILayout.Label("Image Trainer Settings", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
             EditorGUILayout.BeginHorizontal();
             myParams.imgPath = EditorGUILayout.TextField("Source image path", myParams.imgPath);
             if(GUILayout.Button("...",GUILayout.Width(20)))
             {
+                EditorGUI.FocusTextInControl("");
                 string dir = myParams.imgPath.Length > 0 ? Path.GetDirectoryName(myParams.imgPath) : Application.dataPath;
                 string path = EditorUtility.OpenFilePanel("Select an image", dir, "png,jpg,jpeg");
                 if (path.Length>0)
@@ -55,12 +59,28 @@ namespace Zappar.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
-            myParams.maxWidth = EditorGUILayout.IntField("Max Width", myParams.maxWidth);
-            myParams.maxHeight = EditorGUILayout.IntField("Max Height", myParams.maxHeight);
-            myParams.allowOverwrite = EditorGUILayout.Toggle("Allow ZPT overwrite", myParams.allowOverwrite);
-            myParams.encodePreviewImage = EditorGUILayout.Toggle("Encode image preview in ZPT", myParams.encodePreviewImage);
 
-            if (GUILayout.Button("Start train process"))
+            myParams.allowOverwrite = EditorGUILayout.Toggle("Allow ZPT overwrite", myParams.allowOverwrite);
+            myParams.encodePreviewImage = EditorGUILayout.Toggle("Add image preview", myParams.encodePreviewImage);
+
+            if (showAdvanced)
+            {
+                EditorGUILayout.Space(15);
+                GUILayout.Label("Image train parameters", EditorStyles.label);
+                EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
+                myParams.maxWidth = EditorGUILayout.IntField("Max Width", myParams.maxWidth);
+                myParams.maxHeight = EditorGUILayout.IntField("Max Height", myParams.maxHeight);
+                EditorGUILayout.EndVertical();
+            }
+            
+            EditorGUILayout.Space(15);
+
+            if (GUILayout.Button((showAdvanced ? "Hide" : "Show") + " advanced settings"))
+            {
+                showAdvanced = !showAdvanced;
+            }
+
+            if (GUILayout.Button("Start"))
             {
                 EditorCoroutineUtility.StartCoroutine(StartTraining(), this);
             }
