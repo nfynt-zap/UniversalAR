@@ -40,6 +40,8 @@ namespace Zappar.Editor
 
         private void OnGUI()
         {
+            if (myParams == null) myParams = new ZImageTrainerParams();
+
             GUILayout.Label("Image Trainer Settings", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
             myParams.imgPath = EditorGUILayout.TextField("Source image path", myParams.imgPath);
