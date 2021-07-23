@@ -23,6 +23,10 @@ public static class Config
 #else                       
     public const string PluginName = "__Internal";
 #endif
+
+#if UNITY_EDITOR_OSX || UNITY_EDITOR_WIN
+    public const string ImageTrainPlugin = "ImageTraining";
+#endif
 }
 
 public class Z
@@ -80,6 +84,21 @@ public class Z
     public static extern void SetLogFunc(DebugLogDelegate func);
     [DllImport(Config.PluginName, EntryPoint = "ZapparSetErrorFunc")]
     public static extern void SetErrorFunc(DebugLogDelegate func);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct FileData
+    {
+        public IntPtr data;
+        public int length;
+    }
+
+    [DllImport(Config.ImageTrainPlugin, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int TrainImageCompressed(ref FileData compressed, ref FileData zpt, ref FileData preview, int preview_is_jpeg);
+    [DllImport(Config.ImageTrainPlugin, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int TrainImageCompressedWithMax(ref FileData compressed, ref FileData zpt, ref FileData preview, int preview_is_jpeg, int max_width, int max_height);
+    [DllImport(Config.ImageTrainPlugin, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void TrainImageFreeFileData(ref FileData d);
+    
 #endif
 
     private const string ZCVResourcesPath = "Packages/com.zappar.uar/Contents/";

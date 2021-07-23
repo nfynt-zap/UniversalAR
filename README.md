@@ -22,6 +22,7 @@ The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set 
     + [WebGL](#webgl)
   * [Supporting Unity Scriptable Render Pipeline (SRP)](#supporting-unity-scriptable-render-pipeline)
   * [Importing Examples](#importing-examples)
+  * [Zappar Image Training in Editor](#zappar-image-training-in-editor)
   * [Zappar Universal AR Settings](#zappar-universal-ar-settings)
   * [Licensing](#licensing)
   * [Using the Prefabs](#using-the-prefabs)
@@ -150,11 +151,20 @@ Import them to add example scenes to your main project and start zapping in no t
 
 ## Zappar Universal AR Settings
 
-You can access additional project level settings of UAR from `Zappar/Editor/OpenUARSettings`.
+You can access additional project level settings of UAR from `Zappar/Editor/Open Universal AR Settings`.
 
 ![alt text](./Temp~/snap3.jpg "UAR Project Settings")
 
 The settings currently include options to enable/disable image preview for image tracking and some debugging options.
+
+
+## Zappar Image Training in Editor
+
+To create a new image target file `*.ZPT` open the `Zappar Image Trainer` Window, which can be accessed from `Zappar/Editor/Open Image Trainer`. Default parameters here should be okay for first time use, but please note that you will need to enable `ZPT Overwrite` explicitly if the file already exists under `StreamingAssets`. Optionally you can also decide not to include image preview with `ZPT` file to minimize your build size.
+
+**Please note here the maxWidth and maxHeight refers to the training model param and doesn't resize your source or preview image. We recommend keeping it unchanged for optimum use.**
+
+![alt text](./Temp~/img_train.jpg "Image Trainer")
 
 
 ## Licensing

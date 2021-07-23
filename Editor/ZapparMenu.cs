@@ -87,7 +87,7 @@ namespace Zappar.Editor
             Application.OpenURL("https://docs.zap.works/universal-ar/unity");
         }
 
-        [MenuItem("Zappar/Editor/OpenUARSettings", false, 1)]
+        [MenuItem("Zappar/Editor/Open Universal AR Settings", false, 1)]
         static void ZapparOpenUarSettings()
         {
             SettingsService.OpenProjectSettings("Project/ZapparUARSettings");
