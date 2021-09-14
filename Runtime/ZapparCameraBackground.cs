@@ -14,6 +14,7 @@ namespace Zappar
         private Matrix4x4 textureMatrix;
         private float[] textureMatElements = null;
         private Camera backgroundCamera = null;
+        private ZapparCamera mainCamera = null;
 
         public Texture2D GetCameraTexture => m_CamTexture;
         public Matrix4x4 GetTextureMatrix => textureMatrix;
@@ -28,6 +29,7 @@ namespace Zappar
             textureMatrix = new Matrix4x4();
             textureMatElements = new float[16];
             backgroundCamera = GetComponent<Camera>();
+            mainCamera = GetComponentInParent<ZapparCamera>();
         }
 
         void Point(float x, float y)
@@ -77,10 +79,12 @@ namespace Zappar
 #endif
         void Update()
         {
-            if (!m_Initialised || m_CameraMaterial == null)
+            if (m_CameraMaterial == null || mainCamera == null)
+                return;
+
+            if (!m_Initialised)
             {
-                if (Z.HasInitialized())
-                    m_Initialised = true;
+                m_Initialised = Z.HasInitialized() && mainCamera.CameraHasStarted;
                 return;
             }
 

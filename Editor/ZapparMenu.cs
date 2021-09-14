@@ -215,21 +215,22 @@ namespace Zappar.Editor
             PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.dataCaching = true;
-
+            
             //Build Settings
             EditorUserBuildSettings.development = false;
 #if UNITY_2020_1_OR_NEWER
             PlayerSettings.WebGL.decompressionFallback = true;
-            PlayerSettings.WebGL.template = "PROJECT:Zappar2020";
-#elif UNITY_2018_1_OR_NEWER
             PlayerSettings.WebGL.template = "PROJECT:Zappar";
+#elif UNITY_2019_1_OR_NEWER
+            PlayerSettings.WebGL.template = "PROJECT:Zappar2019";
 #else
             Debug.LogError("Please upgrade to newer versions of Unity");
 #endif
 #elif UNITY_ANDROID
 
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
-            
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
+
             //Build Settings
             EditorUserBuildSettings.development = false;
 #else
