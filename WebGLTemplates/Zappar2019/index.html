@@ -80,11 +80,11 @@
 <script src="%UNITY_WEBGL_LOADER_URL%"></script>
 <script>
     var db = indexedDB.open("dummy_indexdb", 1); // iOS 14.6 fix; the call to open indexdb hangs forever otherwise
-    var zappar=ZCV.initialize();
+    window.zappar=ZCV.initialize();
     const loader = document.querySelector("#loader");
     var gameInstance; //= UnityLoader.instantiate("gameContainer", "%UNITY_WEBGL_BUILD_URL%", { onProgress: UnityProgress }); 
     
-    setTimeout(waitForZCVLoad,3000);
+    setTimeout(WaitForZCVLoad,3000);
 
     async function WaitForZCVLoad(){
             while (true){

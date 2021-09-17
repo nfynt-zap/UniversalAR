@@ -22,8 +22,10 @@ $zappar_support__postset: `
             });
             document.body.appendChild(scr);
         } else {
-            if(typeof zappar === 'undefined'){
+            if(typeof window.zappar === 'undefined' && typeof zappar === 'undefined'){
                 zappar = ZCV.initialize();
+            }else if(typeof zappar === 'undefined') {
+                zappar = window.zappar;
             }
             hasInitialized = true;
         }
