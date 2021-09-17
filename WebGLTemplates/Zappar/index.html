@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>{{{ PRODUCT_NAME }}}</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <script type="text/javascript" src="https://libs.zappar.com/zappar-cv/0.3.8/zappar-cv.js">var zappar=ZCV.initialize();</script>
+    <script type="text/javascript" src="https://libs.zappar.com/zappar-cv/0.3.10/zappar-cv.js"></script>
     <style>
         html {
             box-sizing: border-box;
@@ -113,6 +113,8 @@
       </div>
     </div>
     <script>
+      var db = indexedDB.open("dummy_indexdb", 1); // iOS 14.6 fix; the call to open indexdb hangs forever otherwise
+
       const buildUrl = "Build";
       const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
       const config = {
@@ -146,21 +148,41 @@
       canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
 #endif
       loadingCover.style.display = "";
+      
+      var zappar=ZCV.initialize();
+
+      setTimeout(WaitForZCVLoad,3000);
 
       const script = document.createElement("script");
       script.src = loaderUrl;
-      script.onload = () => {
+      //script.onload = () => { CreateUnityLoader();   };
+      document.body.appendChild(script);
+
+      function CreateUnityLoader() {
         createUnityInstance(canvas, config, (progress) => {
           spinner.style.display = "none";
           progressBarEmpty.style.display = "";
           progressBarFull.style.width = `${100 * progress}%`;
         }).then((unityInstance) => {
           loadingCover.style.display = "none";
+          //WaitForZCVLoad();
         }).catch((message) => {
           alert(message);
         });
-      };
-      document.body.appendChild(script);
+      }
+      
+    async function WaitForZCVLoad(){
+      while (true){
+        //console.log("waiting for zcv: " + zappar.loaded());
+        if (zappar.loaded()) { 
+          //loadingCover.style.display = "none"; 
+          CreateUnityLoader();
+          return; 
+        }
+        await null;
+      }
+    }
+
     </script>
   </body>
 </html>

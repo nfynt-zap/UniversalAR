@@ -164,7 +164,7 @@ namespace Zappar
 
         void OnDestroy()
         {
-            if (m_faceMesh != null)
+            if (m_faceMesh != null && Application.isPlaying)
                 Z.FaceMeshDestroy(m_faceMesh);
 
             DestroyUnityMesh();
