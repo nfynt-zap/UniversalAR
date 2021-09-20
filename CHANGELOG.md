@@ -4,14 +4,17 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.2.0-preview.1] - 2021-09-17
+## [1.2.0-preview.1] - 2021-09-20
 ### Added
 - Zappar image training in editor
 - Renamed WebGL templates to - `Zappar` (for Unity version 2020 and above) and `Zappar2019` (for Unity version 2019.x)
 
 ### Fixed
+- White screen issue after loading progress on Safari browsers.
 - Fix to update the face mesh view in editor (while toggling between full head mesh).
 - Fix referencing image preview when project GUID has been updated. [Note: finds reference using gameobject name and meshfilter component]
+- Fix camera pause/resume when switching to other tabs and back.
+- Improve HTML template CSS to better fit the full browser window.
 
 
 ## [1.1.1-preview.1] - 2021-07-14

@@ -515,10 +515,11 @@ public class Z
         return zappar_has_initialized() == 1 ? true : false;
     }
 
-    public static Matrix4x4 PipelineProjectionMatrix(IntPtr o, int renderWidth, int renderHeight) {
-        float[] model = PipelineCameraModel(o);
-        if (model[0] == 0) return Matrix4x4.identity;
-        return ProjectionMatrixFromCameraModel( model, renderWidth, renderHeight);
+    public static Matrix4x4 PipelineProjectionMatrix(IntPtr o, int renderWidth, int renderHeight, float zNear, float zFar, ref float[] cameraModel) {
+        IntPtr ret = zappar_pipeline_camera_model(o);
+        Marshal.Copy(ret, cameraModel, 0, 6);
+        if (cameraModel[0] == 0) return Matrix4x4.identity;
+        return ProjectionMatrixFromCameraModelExt(cameraModel, renderWidth, renderHeight, zNear, zFar);
     }
 
     public static Matrix4x4 WorldToCameraMatrix() {

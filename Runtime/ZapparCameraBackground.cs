@@ -16,6 +16,8 @@ namespace Zappar
         private Camera backgroundCamera = null;
         private ZapparCamera mainCamera = null;
 
+        private float[] m_camerModel = null;
+
         public Texture2D GetCameraTexture => m_CamTexture;
         public Matrix4x4 GetTextureMatrix => textureMatrix;
 
@@ -30,6 +32,7 @@ namespace Zappar
             textureMatElements = new float[16];
             backgroundCamera = GetComponent<Camera>();
             mainCamera = GetComponentInParent<ZapparCamera>();
+            m_camerModel = new float[] { 0, 0, 0, 0, 0, 0 };
         }
 
         void Point(float x, float y)
@@ -88,7 +91,7 @@ namespace Zappar
                 return;
             }
 
-            backgroundCamera.projectionMatrix = Z.PipelineProjectionMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height);
+            backgroundCamera.projectionMatrix = Z.PipelineProjectionMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height, backgroundCamera.nearClipPlane, backgroundCamera.farClipPlane, ref m_camerModel);
 
             Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, ref textureMatElements, Screen.width, Screen.height, ZapparCamera.Instance.IsMirrored);
 
