@@ -4,7 +4,13 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.2.0-preview.1] - 2021-09-20
+## [1.2.1] - 2021-10-15
+### Fixed
+- iPad loading issue.
+- support WebGL development build. Fixed emcc error of missing graphics API.
+- blurry canvas on retina and HiDPI mobile browsers
+
+## [1.2.0] - 2021-09-22
 ### Added
 - Zappar image training in editor.
 - Renamed WebGL templates to - `Zappar` (for Unity version 2020 and above) and `Zappar2019` (for Unity version 2019.x).
@@ -18,6 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improve HTML template CSS to better fit the full browser window.
 - Issues with other/embedded browsers on iOS, including social browsers.
 
+### Known issues
+ - Sometimes the app freezes on iOS browser while switching between tabs. To workaround this make sure to check - `Run In Background` setting from `Project Settings > Player > Resolution And Presentation`.
 
 ## [1.1.1-preview.1] - 2021-07-14
 ### Added
