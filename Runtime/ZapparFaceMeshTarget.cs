@@ -11,14 +11,11 @@ namespace Zappar
 
         private bool usingFullHead = true;
 
-        private void Awake()
+        public void Start()
         {
             InitCoeffs();
             usingFullHead = useDefaultFullHead;
-        }
 
-        void Start()
-        {
             if (ZapparCamera.Instance != null)
                 ZapparCamera.Instance.RegisterCameraListener(this);
 
@@ -26,7 +23,7 @@ namespace Zappar
             {
                 //Create new face model
                 m_faceMesh = Z.FaceMeshCreate();
-                CreateMesh(true);
+                CreateMesh();
             }
         }
 
@@ -43,9 +40,8 @@ namespace Zappar
                 if (m_faceMesh != IntPtr.Zero)
                     Z.FaceMeshDestroy(m_faceMesh);
 
-                DestroyUnityMesh();
                 m_faceMesh = Z.FaceMeshCreate();
-                CreateMesh();
+                CreateMesh(true);
                 usingFullHead = useDefaultFullHead;
             }
         }

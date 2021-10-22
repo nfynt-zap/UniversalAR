@@ -6,32 +6,25 @@ namespace Zappar
 {
     public class ZapparImageTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
     {
-        private bool m_isMirrored;
-
-        public IntPtr m_ImageTracker = IntPtr.Zero;
-        public IntPtr m_Pipeline = IntPtr.Zero;
-        private bool m_hasInitialised = false;
-
-        [TargetFileListPopup]
-        [Tooltip("Select the ZPT file you would like to track.")]
-        public string Target;
-
         public enum PlaneOrientation
         {
             Flat,
             Upright
         }
-        [Tooltip("During play offset the tracker's rotation accordingly")]
-        [SerializeField]
-        private PlaneOrientation orientation = PlaneOrientation.Flat;
 
-        public PlaneOrientation Orientation => orientation;
+        public IntPtr m_ImageTracker = IntPtr.Zero;
+        public IntPtr m_Pipeline = IntPtr.Zero;
+        private bool m_hasInitialised = false;
+        private bool m_isMirrored;
+
+        [SerializeField, HideInInspector]
+        public string Target;
+
+        [SerializeField, HideInInspector]
+        public PlaneOrientation Orientation = PlaneOrientation.Flat;
+
         [HideInInspector]
         public GameObject PreviewImagePlane = null;
-        [HideInInspector]
-        public string PreviewTarget = "";
-        [HideInInspector]
-        public PlaneOrientation PreviewOrientation = PlaneOrientation.Flat;
 
         public UnityEvent m_OnSeenEvent;
         public UnityEvent m_OnNotSeenEvent;
@@ -76,7 +69,7 @@ namespace Zappar
             transform.localPosition = Z.GetPosition(targetPose);
 
             // Offset rotations based on dropdown provided by inspector properties
-            Quaternion rotation = orientation == PlaneOrientation.Flat ? Z.GetRotation(targetPose) * Quaternion.Euler(Vector3.left * 90) : Z.GetRotation(targetPose);
+            Quaternion rotation = Orientation == PlaneOrientation.Flat ? Z.GetRotation(targetPose) * Quaternion.Euler(Vector3.left * 90) : Z.GetRotation(targetPose);
             transform.localRotation = rotation;
 
             transform.localScale = Z.GetScale(targetPose);
@@ -94,7 +87,7 @@ namespace Zappar
                 if (!m_isVisible)
                 {
                     m_isVisible = true;
-                    m_OnSeenEvent.Invoke();
+                    m_OnSeenEvent?.Invoke();
                 }
                 UpdateTargetPose();
             }
@@ -103,7 +96,7 @@ namespace Zappar
                 if (m_isVisible)
                 {
                     m_isVisible = false;
-                    m_OnNotSeenEvent.Invoke();
+                    m_OnNotSeenEvent?.Invoke();
                 }
             }
         }

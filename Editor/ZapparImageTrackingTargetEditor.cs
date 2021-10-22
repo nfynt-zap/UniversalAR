@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 using Unity.EditorCoroutines.Editor;
 
 namespace Zappar.Editor
@@ -8,29 +10,89 @@ namespace Zappar.Editor
     [CustomEditor(typeof(ZapparImageTrackingTarget))]
     public class ZapparImageTrackingTargetEditor : UnityEditor.Editor
     {
+        class Styles
+        {
+            public static GUIContent TargetContent = new GUIContent("Target", "Select the ZPT file you would like to track");
+            public static GUIContent OrientationContent = new GUIContent("Orientation", "During play offset the tracker's rotation accordingly");
+        }
+
+        private string m_imgTarget;
+        private int m_targetIndx;
+        private ZapparImageTrackingTarget.PlaneOrientation m_orient;
 
         ZapparImageTrackingTarget myScript = null;
-        //--------------------
+        private bool m_imgPreviewEnabled;
+        List<string> zptFiles = new List<string>();
 
         private void OnEnable()
         {
             if (Application.isPlaying) return;
             
             var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            m_imgPreviewEnabled = settings.ImageTargetPreviewEnabled;
             myScript = (ZapparImageTrackingTarget)target;
-            ToggleImagePreview(settings.ImageTargetPreviewEnabled);
+            
+            UpdateZptList();
+
+            m_imgTarget = myScript.Target;
+            m_targetIndx = Mathf.Max(zptFiles.IndexOf(m_imgTarget), 0);
+            m_orient = myScript.Orientation;
+
+            ToggleImagePreview(m_imgPreviewEnabled);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            if (!Application.isPlaying)
+            {
+                if (zptFiles?.Count > 0)
+                {
+                    m_targetIndx = Mathf.Max(zptFiles.IndexOf(m_imgTarget), 0);
+                    int index = EditorGUILayout.Popup(Styles.TargetContent, m_targetIndx, zptFiles.ToArray());
+                    if(index!= m_targetIndx)
+                    {
+                        m_imgTarget = zptFiles[index];
+                        m_targetIndx = index;
+                        OnZPTFilenameChange(m_imgTarget); 
+                        EditorUtility.SetDirty(myScript.gameObject);
+                    }                    
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("<color=#CC0011>No ZPT files found!</color>", new GUIStyle() { richText=true });
+                }
+
+                m_orient = (ZapparImageTrackingTarget.PlaneOrientation)EditorGUILayout.EnumPopup(Styles.OrientationContent, myScript.Orientation);
+                if(m_orient != myScript.Orientation)
+                {
+                    myScript.Orientation = m_orient;
+                    if (myScript.m_ImageTracker == IntPtr.Zero)
+                        OnZPTFilenameChange(m_imgTarget);
+                    else
+                        SetupImagePreview();
+                    EditorUtility.SetDirty(myScript.gameObject);
+                }
+            }
+            //base.OnInspectorGUI();
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_OnSeenEvent"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_OnNotSeenEvent"));
+            if (GUI.changed)
+            {
+                serializedObject.ApplyModifiedProperties();
+            }
         }
 
         private void ToggleImagePreview(bool enable)
         {
+            if (myScript == null) return;
+
             if (enable)
             {
-                if (!Z.HasInitialized() || myScript==null || (myScript.PreviewImagePlane != null && !RequirePreviewUpdate()))
+                if (!Z.HasInitialized() || (myScript.PreviewImagePlane != null))
                     return;
 
-                myScript.m_Pipeline = Z.PipelineCreate();
-                myScript.m_ImageTracker = Z.ImageTrackerCreate(myScript.m_Pipeline);
-                OnZPTFilenameChange();
+                OnZPTFilenameChange(myScript.Target);
             }
             else
             {
@@ -38,7 +100,7 @@ namespace Zappar.Editor
                 if (myScript.m_ImageTracker != IntPtr.Zero) Z.ImageTrackerDestroy(myScript.m_ImageTracker);
                 if (myScript.m_Pipeline != IntPtr.Zero) Z.PipelineDestroy(myScript.m_Pipeline);
 
-                if (myScript?.PreviewImagePlane != null)
+                if (myScript.PreviewImagePlane != null)
                 {
                     DestroyImmediate(myScript.PreviewImagePlane);
                     EditorUtility.SetDirty(myScript.gameObject);
@@ -46,13 +108,7 @@ namespace Zappar.Editor
             }
         }
 
-        private bool RequirePreviewUpdate()
-        {
-            if (myScript == null) return false;
-            return !myScript.PreviewTarget.Equals(myScript.Target) || myScript.PreviewOrientation != myScript.Orientation;
-        }
-
-        private void OnZPTFilenameChange()
+        private void OnZPTFilenameChange(string newTarget)
         {
             if (myScript==null || !myScript.gameObject.activeInHierarchy)
             {
@@ -62,18 +118,19 @@ namespace Zappar.Editor
 
             if (myScript.Target == "No ZPT files available." || string.IsNullOrEmpty(myScript.Target))
                 return;
+            myScript.Target = newTarget;
 
-            myScript.PreviewTarget = myScript.Target;
-            myScript.PreviewOrientation = myScript.Orientation;
+            if (!m_imgPreviewEnabled) return;
 
-            DestroyImmediate(myScript?.PreviewImagePlane);
-            EditorCoroutineUtility.StartCoroutine(Z.LoadZPTTarget(myScript.PreviewTarget, TargetDataAvailableCallback), myScript);
+            myScript.m_Pipeline = Z.PipelineCreate();
+            myScript.m_ImageTracker = Z.ImageTrackerCreate(myScript.m_Pipeline);
+            EditorCoroutineUtility.StartCoroutine(Z.LoadZPTTarget(newTarget, TargetDataAvailableCallback), myScript);
         }
 
         private void SetupImagePreview()
-        {
-            if (myScript==null) return;
-
+        { 
+            if (myScript==null || !m_imgPreviewEnabled) return;
+            
             int previewWidth = Z.ImageTrackerTargetPreviewRgbaWidth(myScript.m_ImageTracker, 0);
             int previewHeight = Z.ImageTrackerTargetPreviewRgbaHeight(myScript.m_ImageTracker, 0);
 
@@ -81,8 +138,6 @@ namespace Zappar.Editor
 
             if (previewWidth == 0 || previewHeight == 0)
                 return;
-
-            byte[] previewData = Z.ImageTrackerTargetPreviewRgba(myScript.m_ImageTracker, 0);
 
             if (myScript.PreviewImagePlane == null)
             {
@@ -117,6 +172,8 @@ namespace Zappar.Editor
             const float scaleFactor = 2f;   // check for better estimator than rough scaling
             myScript.PreviewImagePlane.transform.localScale = new Vector3(aspectRatio, 1.0f, 1.0f) * scaleFactor;
 
+            byte[] previewData = Z.ImageTrackerTargetPreviewRgba(myScript.m_ImageTracker, 0);
+
             Texture2D texture = new Texture2D(previewWidth, previewHeight, TextureFormat.RGBA32, false);
             texture.LoadRawTextureData(previewData);
             texture.Apply();
@@ -146,5 +203,25 @@ namespace Zappar.Editor
                 Debug.LogError("No image tracker found to enable preview");
             }
         }
+
+        private void UpdateZptList()
+        {
+            zptFiles.Clear();
+            try
+            {
+                DirectoryInfo directory = new DirectoryInfo(Application.streamingAssetsPath);
+                FileInfo[] files = directory.GetFiles("*.zpt");
+                foreach (FileInfo file in files)
+                {
+                    zptFiles.Add(file.Name);
+                }
+            }
+            catch (Exception e)
+            {
+                // Unable to check streaming assets path
+                Debug.LogError("Unable to check streaming assets path! Exception: " + e.Message);
+            }
+        }
+
     }
 }

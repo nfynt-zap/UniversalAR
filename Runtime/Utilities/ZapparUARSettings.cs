@@ -17,6 +17,14 @@ namespace Zappar
         }
 
         [SerializeField]
+        private int m_ConcurrentFaceTrackerCount = 1;
+        public int ConcurrentFaceTrackerCount
+        {
+            get { return m_ConcurrentFaceTrackerCount; }
+            set { m_ConcurrentFaceTrackerCount = (value > 0 ? value : 1); }
+        }
+
+        [SerializeField]
         private bool m_EnableRealtimeReflections = false;
         public bool EnableRealtimeReflections
         {

@@ -4,21 +4,40 @@ using UnityEngine.Events;
 
 namespace Zappar
 {
+    internal static class ZapparFaceTrackingManager
+    {
+        public static int NumberOfTrackers { get; private set; } = 0;
+        public static IntPtr FaceTrackerPipeline = IntPtr.Zero;
+        public static bool HasInitialized = false;
+
+        public static void RegisterTracker(ZapparFaceTrackingTarget target)
+        {
+            NumberOfTrackers++;
+        }
+    }
+
     public class ZapparFaceTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
     {
         public UnityEvent m_OnSeenEvent;
         public UnityEvent m_OnNotSeenEvent;
 
-        public IntPtr m_faceTracker = IntPtr.Zero;
-
+        [SerializeField, HideInInspector]
+        private int m_faceNumber = 0;
         private bool m_hasInitialised = false;
         private bool m_isMirrored;
         private bool m_isVisible = false;
 
-        public bool HasInitialized => m_hasInitialised;
+        public IntPtr FaceTrackingPipeline => ZapparFaceTrackingManager.FaceTrackerPipeline;
+        public int FaceTrackingId
+        {
+            get { return m_faceNumber; }
+            set { m_faceNumber = (value < 0 ? 0 : value); }
+        }
 
         void Start()
         {
+            ZapparFaceTrackingManager.RegisterTracker(this);
+
             if (m_OnSeenEvent == null)
                 m_OnSeenEvent = new UnityEvent();
 
@@ -30,13 +49,20 @@ namespace Zappar
 
         public void OnZapparInitialised(IntPtr pipeline)
         {
-            m_faceTracker = Z.FaceTrackerCreate(pipeline);
+            if (!ZapparFaceTrackingManager.HasInitialized)
+            {
+                ZapparFaceTrackingManager.FaceTrackerPipeline = Z.FaceTrackerCreate(pipeline);
+                Z.FaceTrackerMaxFacesSet(ZapparFaceTrackingManager.FaceTrackerPipeline, ZapparFaceTrackingManager.NumberOfTrackers);
+                
 #if UNITY_EDITOR
-            byte[] faceTrackerData = Z.LoadRawBytes(Z.FaceTrackingModelPath());
-            Z.FaceTrackerModelLoadFromMemory(m_faceTracker, faceTrackerData);
+                byte[] faceTrackerData = Z.LoadRawBytes(Z.FaceTrackingModelPath());
+                Z.FaceTrackerModelLoadFromMemory(ZapparFaceTrackingManager.FaceTrackerPipeline, faceTrackerData);
 #else
-        Z.FaceTrackerModelLoadDefault(m_faceTracker);
+                Z.FaceTrackerModelLoadDefault(ZapparFaceTrackingManager.FaceTrackerPipeline);
 #endif
+                ZapparFaceTrackingManager.HasInitialized = true;
+            }
+
             m_hasInitialised = true;
         }
 
@@ -48,7 +74,7 @@ namespace Zappar
         void UpdateTargetPose()
         {
             Matrix4x4 cameraPose = ZapparCamera.Instance.GetPose();
-            Matrix4x4 facePose = Z.FaceTrackerAnchorPose(m_faceTracker, 0, cameraPose, m_isMirrored);
+            Matrix4x4 facePose = Z.FaceTrackerAnchorPose(FaceTrackingPipeline, m_faceNumber, cameraPose, m_isMirrored);
             Matrix4x4 targetPose = Z.ConvertToUnityPose(facePose);
 
             transform.localPosition = Z.GetPosition(targetPose);
@@ -62,7 +88,7 @@ namespace Zappar
             {
                 return;
             }
-            if (Z.FaceTrackerAnchorCount(m_faceTracker) > 0)
+            if (Z.FaceTrackerAnchorCount(FaceTrackingPipeline) > m_faceNumber)
             {
                 if (!m_isVisible)
                 {
@@ -83,17 +109,24 @@ namespace Zappar
 
         void OnDestroy()
         {
-            if (m_hasInitialised)
+            if (m_hasInitialised && m_faceNumber==0)
             {
-                if (m_faceTracker != IntPtr.Zero) Z.FaceTrackerDestroy(m_faceTracker);
+                //Destroy face tracking pipeline while destroying last tracker
+                if (ZapparFaceTrackingManager.FaceTrackerPipeline != IntPtr.Zero)
+                {
+                    Z.FaceTrackerDestroy(ZapparFaceTrackingManager.FaceTrackerPipeline);
+                    ZapparFaceTrackingManager.FaceTrackerPipeline = IntPtr.Zero;
+                }
+                ZapparFaceTrackingManager.HasInitialized = false;
             }
+            m_hasInitialised = false;
         }
 
         public override Matrix4x4 AnchorPoseCameraRelative()
         {
-            if (Z.FaceTrackerAnchorCount(m_faceTracker) > 0)
+            if (Z.FaceTrackerAnchorCount(FaceTrackingPipeline) > m_faceNumber)
             {
-                return Z.FaceTrackerAnchorPoseCameraRelative(m_faceTracker, 0, m_isMirrored);
+                return Z.FaceTrackerAnchorPoseCameraRelative(FaceTrackingPipeline, m_faceNumber, m_isMirrored);
             }
             return Matrix4x4.identity;
         }

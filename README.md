@@ -33,6 +33,7 @@ The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set 
     + [Instant Tracking Prefab](#instant-tracking-prefab)
   * [Extras](#extras)
     + [Enabling Realtime Reflection](#enabling-realtime-reflection)
+    + [Multiple Face Tracking](#multiple-face-tracking)
   * [Advanced Usage](#advanced-usage)
     + [Pipelines and Camera Processing](#pipelines-and-camera-processing)
       - [Constructing and Managing Pipelines](#constructing-and-managing-pipelines)
@@ -233,6 +234,17 @@ To enable the realtime reflection for your reflective materials, follow the foll
 2. Enable `Enable Realtime Refections` from menu `Zappar/Editor/OpenUARSettings`. This will add a new layer `ZapparReflect` to your project.
 3. Right click on `ZapparCameraRear` (Camera object containing `ZapparCamera` script) and select `Zappar/AddRealtimeReflectionProbe`.
 4. Adjust the `ZapparReflectionProbe` properties according to your project needs.
+
+### Multiple Face Tracking
+
+![alt text](./Temp~/uar_settings.jpg "Multi face tracking")
+
+To enable concurrent tracking of multiple faces, follow the following process:
+1. Set the number of faces `Concurrent face trackers` from menu `Zappar/Editor/OpenUARSettings`. Total count would depend upon your use case and device, normally we recommend keeping this below 5.
+2. Add multiple face trackers (as per your requirement) in the unity scene `Zappar/Face Tracker`.
+3. For each face tracker set the unique `Face Number` in editor. This unique number would ideally be in sequence starting from 0, 1, and so on.
+
+The rest of the controls are same usual. Further this will also work with your face mesh scene as well if it's present as a child of the tracker object.
 
 
 ## Advanced Usage

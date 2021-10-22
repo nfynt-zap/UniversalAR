@@ -23,6 +23,7 @@ namespace Zappar
         private bool m_isMirrored;
 
         private IntPtr m_faceTrackingTargetPtr;
+        private int m_faceTrackingTargetId;
         private bool m_haveFaceTracker = false;
 
         public const int m_numIdentityCoefficients = 50;
@@ -45,7 +46,8 @@ namespace Zappar
         {
             if (faceTracker != null)
             {
-                m_faceTrackingTargetPtr = faceTracker.m_faceTracker;
+                m_faceTrackingTargetPtr = faceTracker.FaceTrackingPipeline;
+                m_faceTrackingTargetId = faceTracker.FaceTrackingId;
                 m_haveFaceTracker = true;
             }
             else
@@ -81,8 +83,8 @@ namespace Zappar
             m_mesh.name = "ZFaceMesh" + (useDefaultFullHead ? "_Full" : "");
             gameObject.GetComponent<MeshFilter>().sharedMesh = m_mesh;
 
-            UpdateMaterial();
             UpdateMeshData();
+            UpdateMaterial();
         }
 
         public abstract void UpdateMaterial();
@@ -117,20 +119,19 @@ namespace Zappar
                 return;
 
 #if !UNITY_EDITOR
-        if (m_haveFaceTracker && Z.FaceTrackerAnchorCount(m_faceTrackingTargetPtr) == 0)
+        if (!m_haveFaceTracker)
         {
             return;
         }
 #endif
-
-            if (!m_haveFaceTracker)
+            if (!m_haveInitialisedFaceMesh)
             {
                 InitCoeffs();
             }
             else
             {
-                Z.FaceTrackerAnchorUpdateIdentityCoefficients(m_faceTrackingTargetPtr, 0, ref m_identity);
-                Z.FaceTrackerAnchorUpdateExpressionCoefficients(m_faceTrackingTargetPtr, 0, ref m_expression);
+                Z.FaceTrackerAnchorUpdateIdentityCoefficients(m_faceTrackingTargetPtr, m_faceTrackingTargetId, ref m_identity);
+                Z.FaceTrackerAnchorUpdateExpressionCoefficients(m_faceTrackingTargetPtr, m_faceTrackingTargetId, ref m_expression);
             }
 
             Z.FaceMeshUpdate(m_faceMesh, m_identity, m_expression, m_isMirrored);
@@ -156,7 +157,7 @@ namespace Zappar
 
         void Update()
         {
-            if (!m_hasInitialised)
+            if (!m_hasInitialised || m_faceTrackingTargetPtr == IntPtr.Zero || Z.FaceTrackerAnchorCount(m_faceTrackingTargetPtr) <= m_faceTrackingTargetId)
                 return;
 
             UpdateMeshData();
@@ -181,9 +182,10 @@ namespace Zappar
 #else
             Destroy(m_mesh);
 #endif
-            m_haveInitialisedFaceMesh = false;
+            m_mesh = null;
             m_faceVertices = null;
             m_faceNormals = null;
+            m_haveInitialisedFaceMesh = false;
         }
     }
 }
