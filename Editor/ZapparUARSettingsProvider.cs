@@ -19,11 +19,11 @@ namespace Zappar.Editor
 
         struct Constants
         {
-            public const string ImagePreviewProp = "m_EnableImageTargetPreview";
-            public const string FaceTrackerProp = "m_ConcurrentFaceTrackerCount";
-            public const string RealtimeReflectionProp = "m_EnableRealtimeReflections";
-            public const string DebugModeProp = "m_DebugMode";
-            public const string LogLevelProp = "m_LogLevel";
+            public const string ImagePreviewProp = "m_enableImageTargetPreview";
+            public const string FaceTrackerProp = "m_concurrentFaceTrackerCount";
+            public const string RealtimeReflectionProp = "m_enableRealtimeReflections";
+            public const string DebugModeProp = "m_debugMode";
+            public const string LogLevelProp = "m_logLevel";
         }
 
         public static void GUIHandler(string searchContext, SerializedObject settings)
@@ -83,7 +83,7 @@ namespace Zappar.Editor
 
 #if ZAPPAR_SRP
             EditorGUILayout.Space(20);
-            EditorGUILayout.HelpBox("Scriptable Pipeline Enabled for ZCV", MessageType.None, true);
+            EditorGUILayout.HelpBox("Scriptable Pipeline Enabled for Universal AR", MessageType.None, true);
 #endif
             EditorGUILayout.EndVertical();
             EditorGUI.DrawRect(edRect, Styles.Background);

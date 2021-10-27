@@ -20,9 +20,16 @@ namespace Zappar.Editor
         private int m_targetIndx;
         private ZapparImageTrackingTarget.PlaneOrientation m_orient;
 
-        ZapparImageTrackingTarget myScript = null;
+        ZapparImageTrackingTarget m_target = null;
         private bool m_imgPreviewEnabled;
-        List<string> zptFiles = new List<string>();
+        [SerializeField]
+        private IntPtr? m_editorPipeline = null;
+        [SerializeField]
+        private IntPtr? m_editorTracker = null;
+        List<string> m_zptFiles = new List<string>();
+
+        private const int TrackIndx = 0;
+        private const string PreviewObjName = "Preview Image";
 
         private void OnEnable()
         {
@@ -30,13 +37,13 @@ namespace Zappar.Editor
             
             var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
             m_imgPreviewEnabled = settings.ImageTargetPreviewEnabled;
-            myScript = (ZapparImageTrackingTarget)target;
+            m_target = (ZapparImageTrackingTarget)target;
             
             UpdateZptList();
 
-            m_imgTarget = myScript.Target;
-            m_targetIndx = Mathf.Max(zptFiles.IndexOf(m_imgTarget), 0);
-            m_orient = myScript.Orientation;
+            m_imgTarget = m_target.Target;
+            m_targetIndx = Mathf.Max(m_zptFiles.IndexOf(m_imgTarget), 0);
+            m_orient = m_target.Orientation;
 
             ToggleImagePreview(m_imgPreviewEnabled);
         }
@@ -45,16 +52,16 @@ namespace Zappar.Editor
         {
             if (!Application.isPlaying)
             {
-                if (zptFiles?.Count > 0)
+                if (m_zptFiles?.Count > 0)
                 {
-                    m_targetIndx = Mathf.Max(zptFiles.IndexOf(m_imgTarget), 0);
-                    int index = EditorGUILayout.Popup(Styles.TargetContent, m_targetIndx, zptFiles.ToArray());
+                    m_targetIndx = Mathf.Max(m_zptFiles.IndexOf(m_imgTarget), 0);
+                    int index = EditorGUILayout.Popup(Styles.TargetContent, m_targetIndx, m_zptFiles.ToArray());
                     if(index!= m_targetIndx)
                     {
-                        m_imgTarget = zptFiles[index];
+                        m_imgTarget = m_zptFiles[index];
                         m_targetIndx = index;
                         OnZPTFilenameChange(m_imgTarget); 
-                        EditorUtility.SetDirty(myScript.gameObject);
+                        EditorUtility.SetDirty(m_target.gameObject);
                     }                    
                 }
                 else
@@ -62,117 +69,124 @@ namespace Zappar.Editor
                     EditorGUILayout.LabelField("<color=#CC0011>No ZPT files found!</color>", new GUIStyle() { richText=true });
                 }
 
-                m_orient = (ZapparImageTrackingTarget.PlaneOrientation)EditorGUILayout.EnumPopup(Styles.OrientationContent, myScript.Orientation);
-                if(m_orient != myScript.Orientation)
+                m_orient = (ZapparImageTrackingTarget.PlaneOrientation)EditorGUILayout.EnumPopup(Styles.OrientationContent, m_target.Orientation);
+                if(m_orient != m_target.Orientation)
                 {
-                    myScript.Orientation = m_orient;
-                    if (myScript.m_ImageTracker == IntPtr.Zero)
+                    m_target.Orientation = m_orient;
+                    if (m_editorTracker == null)
                         OnZPTFilenameChange(m_imgTarget);
                     else
                         SetupImagePreview();
-                    EditorUtility.SetDirty(myScript.gameObject);
+                    EditorUtility.SetDirty(m_target.gameObject);
                 }
             }
             //base.OnInspectorGUI();
 
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_OnSeenEvent"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_OnNotSeenEvent"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("OnSeenEvent"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("OnNotSeenEvent"));
             if (GUI.changed)
             {
                 serializedObject.ApplyModifiedProperties();
             }
         }
 
+        private void OnDisable()
+        {
+            ClearEditorPipeline();
+        }
+
         private void ToggleImagePreview(bool enable)
         {
-            if (myScript == null) return;
+            if (m_target == null) return;
 
             if (enable)
             {
-                if (!Z.HasInitialized() || (myScript.PreviewImagePlane != null))
+                if (!Z.HasInitialized() || (m_target.PreviewImagePlane != null))
                     return;
 
-                OnZPTFilenameChange(myScript.Target);
+                OnZPTFilenameChange(m_target.Target);
             }
             else
             {
                 //clear the preview
-                if (myScript.m_ImageTracker != IntPtr.Zero) Z.ImageTrackerDestroy(myScript.m_ImageTracker);
-                if (myScript.m_Pipeline != IntPtr.Zero) Z.PipelineDestroy(myScript.m_Pipeline);
+                ClearEditorPipeline();
 
-                if (myScript.PreviewImagePlane != null)
+                if (m_target.PreviewImagePlane != null)
                 {
-                    DestroyImmediate(myScript.PreviewImagePlane);
-                    EditorUtility.SetDirty(myScript.gameObject);
+                    DestroyImmediate(m_target.PreviewImagePlane);
+                    EditorUtility.SetDirty(m_target.gameObject);
                 }
             }
         }
 
         private void OnZPTFilenameChange(string newTarget)
         {
-            if (myScript==null || !myScript.gameObject.activeInHierarchy)
+            if (m_target==null || !m_target.gameObject.activeInHierarchy)
             {
                 Debug.Log("Could not start LoadZPTTarget Coroutine as gameobject is inactive.");
                 return;
             }
 
-            if (myScript.Target == "No ZPT files available." || string.IsNullOrEmpty(myScript.Target))
+            if (m_target.Target == "No ZPT files available." || string.IsNullOrEmpty(m_target.Target))
                 return;
-            myScript.Target = newTarget;
+            m_target.Target = newTarget;
 
             if (!m_imgPreviewEnabled) return;
 
-            myScript.m_Pipeline = Z.PipelineCreate();
-            myScript.m_ImageTracker = Z.ImageTrackerCreate(myScript.m_Pipeline);
-            EditorCoroutineUtility.StartCoroutine(Z.LoadZPTTarget(newTarget, TargetDataAvailableCallback), myScript);
+            if (m_editorPipeline == null)
+                m_editorPipeline = Z.PipelineCreate();
+            if (m_editorTracker == null)
+                m_editorTracker = Z.ImageTrackerCreate(m_editorPipeline.Value);
+
+            EditorCoroutineUtility.StartCoroutine(Z.LoadZPTTarget(newTarget, TargetDataAvailableCallback), m_target);
         }
 
         private void SetupImagePreview()
         { 
-            if (myScript==null || !m_imgPreviewEnabled) return;
+            if (m_target==null || !m_imgPreviewEnabled) return;
             
-            int previewWidth = Z.ImageTrackerTargetPreviewRgbaWidth(myScript.m_ImageTracker, 0);
-            int previewHeight = Z.ImageTrackerTargetPreviewRgbaHeight(myScript.m_ImageTracker, 0);
+            int previewWidth = Z.ImageTrackerTargetPreviewRgbaWidth(m_editorTracker.Value, TrackIndx);
+            int previewHeight = Z.ImageTrackerTargetPreviewRgbaHeight(m_editorTracker.Value, TrackIndx);
 
             Debug.Log("Preview image res: " + previewWidth + "x" + previewHeight);
 
             if (previewWidth == 0 || previewHeight == 0)
                 return;
 
-            if (myScript.PreviewImagePlane == null)
+            if (m_target.PreviewImagePlane == null)
             {
                 GameObject plane = null;
-                for (int i = 0; i < myScript.transform.childCount; ++i)
+                for (int i = 0; i < m_target.transform.childCount; ++i)
                 {
-                    if (myScript.transform.GetChild(i).gameObject.name == "Preview Image")
+                    if (m_target.transform.GetChild(i).gameObject.name == PreviewObjName)
                     {
-                        plane = myScript.transform.GetChild(i).gameObject;
+                        plane = m_target.transform.GetChild(i).gameObject;
                         if (plane.GetComponent<MeshFilter>() == null) plane = null;
                     }
                 }
                 if (plane == null)
                 {
-                    myScript.PreviewImagePlane = GameObject.CreatePrimitive(PrimitiveType.Quad) as GameObject;
-                    Undo.RegisterCreatedObjectUndo(myScript.PreviewImagePlane, "New preview object");
-                    myScript.PreviewImagePlane.name = "Preview Image";
-                    myScript.PreviewImagePlane.transform.SetParent(myScript.transform);
+                    m_target.PreviewImagePlane = GameObject.CreatePrimitive(PrimitiveType.Quad) as GameObject;
+                    Undo.RegisterCreatedObjectUndo(m_target.PreviewImagePlane, "New preview object");
+                    m_target.PreviewImagePlane.name = PreviewObjName;
+                    m_target.PreviewImagePlane.transform.SetParent(m_target.transform);
                 }
                 else
                 {
-                    myScript.PreviewImagePlane = plane;
-                    EditorUtility.SetDirty(myScript.gameObject);
+                    m_target.PreviewImagePlane = plane;
+                    EditorUtility.SetDirty(m_target.gameObject);
                 }
             }
 
-            myScript.PreviewImagePlane.transform.localEulerAngles = myScript.Orientation == ZapparImageTrackingTarget.PlaneOrientation.Flat ?
+            m_target.PreviewImagePlane.transform.localEulerAngles = m_target.Orientation == ZapparImageTrackingTarget.PlaneOrientation.Flat ?
                 new Vector3(90, 0, 180) : new Vector3(0,0,180);
-            myScript.PreviewImagePlane.transform.localPosition = Vector3.zero;
+            m_target.PreviewImagePlane.transform.localPosition = Vector3.zero;
 
             float aspectRatio = (float)previewWidth / (float)previewHeight;
-            const float scaleFactor = 2f;   // check for better estimator than rough scaling
-            myScript.PreviewImagePlane.transform.localScale = new Vector3(aspectRatio, 1.0f, 1.0f) * scaleFactor;
+            const float scaleFactor = 2f;
+            m_target.PreviewImagePlane.transform.localScale = new Vector3(aspectRatio, 1.0f, 1.0f) * scaleFactor;
 
-            byte[] previewData = Z.ImageTrackerTargetPreviewRgba(myScript.m_ImageTracker, 0);
+            byte[] previewData = Z.ImageTrackerTargetPreviewRgba(m_editorTracker.Value, 0);
 
             Texture2D texture = new Texture2D(previewWidth, previewHeight, TextureFormat.RGBA32, false);
             texture.LoadRawTextureData(previewData);
@@ -182,20 +196,20 @@ namespace Zappar.Editor
 #if ZAPPAR_SRP
             //material.SetTextureScale("_MainTex", new Vector2(-1, 1));
             material.mainTexture = texture;
-            Vector3 scale = myScript.PreviewImagePlane.transform.localScale;
-            myScript.PreviewImagePlane.transform.localScale = new Vector3(scale.x * -1, scale.y, scale.z);
+            Vector3 scale = m_target.PreviewImagePlane.transform.localScale;
+            m_target.PreviewImagePlane.transform.localScale = new Vector3(scale.x * -1, scale.y, scale.z);
 #else
             material.SetTextureScale("_MainTex", new Vector2(-1, 1));
             material.mainTexture = texture;
 #endif
-            myScript.PreviewImagePlane.GetComponent<Renderer>().material = material;
+            m_target.PreviewImagePlane.GetComponent<Renderer>().material = material;
         }
 
         private void TargetDataAvailableCallback(byte[] data)
         {
-            if (myScript.m_ImageTracker!=IntPtr.Zero)
+            if (m_editorTracker != null)
             {
-                Z.ImageTrackerTargetLoadFromMemory(myScript.m_ImageTracker, data);
+                Z.ImageTrackerTargetLoadFromMemory(m_editorTracker.Value, data);
                 SetupImagePreview();
             }
             else
@@ -206,14 +220,14 @@ namespace Zappar.Editor
 
         private void UpdateZptList()
         {
-            zptFiles.Clear();
+            m_zptFiles.Clear();
             try
             {
                 DirectoryInfo directory = new DirectoryInfo(Application.streamingAssetsPath);
                 FileInfo[] files = directory.GetFiles("*.zpt");
                 foreach (FileInfo file in files)
                 {
-                    zptFiles.Add(file.Name);
+                    m_zptFiles.Add(file.Name);
                 }
             }
             catch (Exception e)
@@ -223,5 +237,11 @@ namespace Zappar.Editor
             }
         }
 
+        private void ClearEditorPipeline()
+        {
+            if (m_editorTracker != null) Z.ImageTrackerDestroy(m_editorTracker.Value);
+            if (m_editorPipeline != null) Z.PipelineDestroy(m_editorPipeline.Value);
+            m_editorPipeline = m_editorTracker = null;
+        }
     }
 }

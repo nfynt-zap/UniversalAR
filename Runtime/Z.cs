@@ -137,6 +137,8 @@ public class Z
 // BEGIN AUTOGEN
 
         [DllImport(Config.PluginName)]
+    private static extern int zappar_loaded();
+    [DllImport(Config.PluginName)]
     private static extern IntPtr zappar_camera_default_device_id(int userFacing);
     [DllImport(Config.PluginName)]
     private static extern int zappar_camera_count();
@@ -721,7 +723,12 @@ public class Z
 
     // BEGIN AUTOGEN
 
-    public static string CameraDefaultDeviceId(bool userFacing) {
+    public static bool Loaded() {
+        
+        int ret = zappar_loaded();
+        return (ret == 1) ? true : false;
+    }
+	public static string CameraDefaultDeviceId(bool userFacing) {
         
         IntPtr ret = zappar_camera_default_device_id(userFacing ? 1 : 0);
         return Marshal.PtrToStringAnsi(ret);

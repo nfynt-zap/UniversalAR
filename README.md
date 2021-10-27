@@ -16,6 +16,7 @@ The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set 
 # Table of Contents
 
   * [Importing UAR package into Unity](#importing-uar-package-into-unity)
+    + [Update UAR package](#update-uar-package-to-latest-version)
   * [Platform support](#platform-support)
     + [Android](#android)
     + [iOS](#ios)
@@ -74,6 +75,13 @@ Another option is to define the `universal-ar-unity` package as dependency in yo
 
 Note that you can modify the source github URL to define any particular `tag`, `branch` or `commit hash`, by adding suffix: `#ID` to the git URL. You can read more about it here: https://docs.unity3d.com/Manual/upm-git.html
 
+### Update UAR package to latest version
+
+In order to directly update the UAR package with the latest version on github use the following Zappar menu option `Zappar/Editor/Re-Import UAR Git Package`.
+
+![alt text](./Temp~/reimport.jpg "Update UAR Git package")
+
+Please note: we always ensure backward compatibility for new releases, however do go through the [CHANGELOG.md](https://github.com/zappar-xr/universal-ar-unity/blob/main/CHANGELOG.md) to be sure there are no breaking changes between your local version and latest version on Git.
 
 ## Platform support
 

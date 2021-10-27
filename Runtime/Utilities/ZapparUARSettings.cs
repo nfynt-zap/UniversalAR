@@ -9,43 +9,43 @@ namespace Zappar
         public const string MySettingsPath = "Packages/com.zappar.uar/Resources/User/ZapparUARSettings.asset";
 
         [SerializeField]
-        private bool m_EnableImageTargetPreview = false;
+        private bool m_enableImageTargetPreview = false;
         public bool ImageTargetPreviewEnabled
         {
-            get { return m_EnableImageTargetPreview; }
-            set { m_EnableImageTargetPreview = value; }
+            get { return m_enableImageTargetPreview; }
+            set { m_enableImageTargetPreview = value; }
         }
 
         [SerializeField]
-        private int m_ConcurrentFaceTrackerCount = 1;
+        private int m_concurrentFaceTrackerCount = 1;
         public int ConcurrentFaceTrackerCount
         {
-            get { return m_ConcurrentFaceTrackerCount; }
-            set { m_ConcurrentFaceTrackerCount = (value > 0 ? value : 1); }
+            get { return m_concurrentFaceTrackerCount; }
+            set { m_concurrentFaceTrackerCount = (value > 0 ? value : 1); }
         }
 
         [SerializeField]
-        private bool m_EnableRealtimeReflections = false;
+        private bool m_enableRealtimeReflections = false;
         public bool EnableRealtimeReflections
         {
-            get { return m_EnableRealtimeReflections; }
-            set { m_EnableRealtimeReflections = value; }
+            get { return m_enableRealtimeReflections; }
+            set { m_enableRealtimeReflections = value; }
         }
 
         [SerializeField]
-        private Z.DebugMode m_DebugMode = Z.DebugMode.UnityLog;
+        private Z.DebugMode m_debugMode = Z.DebugMode.UnityLog;
         public Z.DebugMode DebugMode
         {
-            get { return m_DebugMode; }
-            set { m_DebugMode = value; }
+            get { return m_debugMode; }
+            set { m_debugMode = value; }
         }
 
         [SerializeField]
-        private Z.LogLevel m_LogLevel = Z.LogLevel.WARNING;
+        private Z.LogLevel m_logLevel = Z.LogLevel.WARNING;
         public Z.LogLevel LogLevel
         {
-            get { return m_LogLevel; }
-            set { m_LogLevel = value; }
+            get { return m_logLevel; }
+            set { m_logLevel = value; }
         }
 
     }

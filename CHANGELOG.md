@@ -4,10 +4,17 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.2.2] - 2021-10-22
+## [1.2.3] - 2021-10-29
 ### Updated
 - Multiple face tracking with the face mesh
 - Instant update of image preview in editor for image tracking target.
+
+### Fixed
+- Nullable IntPtr for zappar trackers and pipeline.
+- Image Trainer overwrite check before starting the training process.
+
+### Breaking Changes
+- Renamed several variables across the SDK. Updating the package will result in loosing any previously set references in editor or used in scripts.
 
 ## [1.2.1] - 2021-10-15
 ### Fixed

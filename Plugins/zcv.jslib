@@ -56,7 +56,12 @@ $zappar_support__postset: `
         return ret;
     };
     
-    _zappar_camera_default_device_id = function(userFacing) {
+    _zappar_loaded = function() {
+        
+        var ret = zappar.loaded();
+        return ret;
+    };
+	_zappar_camera_default_device_id = function(userFacing) {
         var userFacing_val = userFacing;
         var ret = zappar.camera_default_device_id(userFacing_val);
         var bufferSize = lengthBytesUTF8(ret) + 1;
@@ -862,6 +867,9 @@ $zappar_support__postset: `
     zappar_pipeline_camera_frame_upload_gl__deps: ['$zappar_support'],
 
     
+    zappar_loaded: function() {},
+    zappar_loaded__deps: ['$zappar_support'],
+	
     zappar_camera_default_device_id: function() {},
     zappar_camera_default_device_id__deps: ['$zappar_support'],
 	
