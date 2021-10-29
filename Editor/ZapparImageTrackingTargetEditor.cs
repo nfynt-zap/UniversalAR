@@ -40,9 +40,19 @@ namespace Zappar.Editor
             m_target = (ZapparImageTrackingTarget)target;
             
             UpdateZptList();
-
-            m_imgTarget = m_target.Target;
-            m_targetIndx = Mathf.Max(m_zptFiles.IndexOf(m_imgTarget), 0);
+            
+            if (m_zptFiles.Count == 0) return;
+            
+            if (string.IsNullOrEmpty(m_target.Target) || m_target.Target == "No ZPT files available.")
+            {
+                m_imgTarget = m_target.Target = m_zptFiles[0];
+                m_targetIndx = 0;
+            }
+            else
+            {
+                m_imgTarget = m_target.Target;
+                m_targetIndx = Mathf.Max(m_zptFiles.IndexOf(m_imgTarget), 0);
+            }
             m_orient = m_target.Orientation;
 
             ToggleImagePreview(m_imgPreviewEnabled);
@@ -126,9 +136,10 @@ namespace Zappar.Editor
                 Debug.Log("Could not start LoadZPTTarget Coroutine as gameobject is inactive.");
                 return;
             }
-
-            if (m_target.Target == "No ZPT files available." || string.IsNullOrEmpty(m_target.Target))
+            
+            if (newTarget == "No ZPT files available." || string.IsNullOrEmpty(newTarget))
                 return;
+            
             m_target.Target = newTarget;
 
             if (!m_imgPreviewEnabled) return;
@@ -179,7 +190,7 @@ namespace Zappar.Editor
             }
 
             m_target.PreviewImagePlane.transform.localEulerAngles = m_target.Orientation == ZapparImageTrackingTarget.PlaneOrientation.Flat ?
-                new Vector3(90, 0, 180) : new Vector3(0,0,180);
+                new Vector3(90, 0, 0) : new Vector3(0,0,0);
             m_target.PreviewImagePlane.transform.localPosition = Vector3.zero;
 
             float aspectRatio = (float)previewWidth / (float)previewHeight;
@@ -192,16 +203,11 @@ namespace Zappar.Editor
             texture.LoadRawTextureData(previewData);
             texture.Apply();
 
-            Material material = new Material(Shader.Find("Unlit/Texture"));
-#if ZAPPAR_SRP
-            //material.SetTextureScale("_MainTex", new Vector2(-1, 1));
+            Material material = new Material(Shader.Find("Zappar/UnlitTextureUV"));
             material.mainTexture = texture;
-            Vector3 scale = m_target.PreviewImagePlane.transform.localScale;
-            m_target.PreviewImagePlane.transform.localScale = new Vector3(scale.x * -1, scale.y, scale.z);
-#else
-            material.SetTextureScale("_MainTex", new Vector2(-1, 1));
-            material.mainTexture = texture;
-#endif
+            material.SetFloat("_FlipTexY",1);
+            material.EnableKeyword("FlipTexV");
+
             m_target.PreviewImagePlane.GetComponent<Renderer>().material = material;
         }
 
@@ -232,7 +238,6 @@ namespace Zappar.Editor
             }
             catch (Exception e)
             {
-                // Unable to check streaming assets path
                 Debug.LogError("Unable to check streaming assets path! Exception: " + e.Message);
             }
         }

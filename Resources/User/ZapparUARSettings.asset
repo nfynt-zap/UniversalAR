@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ZapparUARSettings
   m_EditorClassIdentifier: 
   m_enableImageTargetPreview: 1
-  m_concurrentFaceTrackerCount: 1
+  m_concurrentFaceTrackerCount: 2
   m_enableRealtimeReflections: 0
   m_debugMode: 2
   m_logLevel: 2

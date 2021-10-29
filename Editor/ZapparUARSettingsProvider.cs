@@ -131,7 +131,7 @@ namespace Zappar.Editor
                 }
                 settings = ScriptableObject.CreateInstance<ZapparUARSettings>();
                 settings.ImageTargetPreviewEnabled = true;
-                settings.ConcurrentFaceTrackerCount = 1;
+                settings.ConcurrentFaceTrackerCount = 2;
                 settings.EnableRealtimeReflections = false;
                 settings.DebugMode = Z.DebugMode.UnityLog;
                 settings.LogLevel = Z.LogLevel.WARNING;

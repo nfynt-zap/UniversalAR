@@ -17,11 +17,11 @@ namespace Zappar
         }
 
         [SerializeField]
-        private int m_concurrentFaceTrackerCount = 1;
+        private int m_concurrentFaceTrackerCount = 2;
         public int ConcurrentFaceTrackerCount
         {
             get { return m_concurrentFaceTrackerCount; }
-            set { m_concurrentFaceTrackerCount = (value > 0 ? value : 1); }
+            set { m_concurrentFaceTrackerCount = (value > 0 ? value : 2); }
         }
 
         [SerializeField]

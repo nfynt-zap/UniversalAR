@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Nullable IntPtr for zappar trackers and pipeline.
 - Image Trainer overwrite check before starting the training process.
+- UV mapping of preview texture on Safari.
 
 ### Breaking Changes
 - Renamed several variables across the SDK. Updating the package will result in loosing any previously set references in editor or used in scripts.
