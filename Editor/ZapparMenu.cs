@@ -25,7 +25,7 @@ namespace Zappar.Editor
             GameObject go = Instantiate(camera, Vector3.zero, Quaternion.identity);
             Undo.RegisterCreatedObjectUndo(go, "New camera added");
 
-            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
             if(settings.EnableRealtimeReflections)
             {
                 GameObject rp = new GameObject("ZReflectionProbe");
@@ -299,7 +299,7 @@ namespace Zappar.Editor
         [MenuItem("GameObject/Zappar/Add Realtime Reflection Probe", false, 10)]
         public static void CreateZapparReflectionProbe(MenuCommand menuCommand)
         {
-            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
             if (!settings.EnableRealtimeReflections)
             {
                 Debug.Log("Please enable the realtime reflection from UAR settings! Zappar/Editor/OpenUARSettings");

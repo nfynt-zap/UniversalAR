@@ -26,42 +26,41 @@ public class ZapparFaceLandmark : MonoBehaviour
     
     private Face_Landmark_Name m_currentLandmark;
     private bool m_isMirrored;
-    private IntPtr m_faceTrackerPipeline;
+    private IntPtr? m_faceTrackerPipeline = null;
     private int m_faceTrackerId;
-    private IntPtr m_faceLandmarkPtr = IntPtr.Zero;
+    private IntPtr? m_faceLandmarkPtr = null;
 
     private const int NumIdentityCoefficients = 50;
     private const int NumExpressionCoefficients = 29;
 
-    private float[] m_identity;
-    private float[] m_expression;
-
     void Start()
     {
+        if(FaceTracker==null)
+        {
+            FaceTracker = transform.GetComponentInParent<ZapparFaceTrackingTarget>();
+        }
         ZapparFaceTrackingManager.RegisterPipelineCallback(OnFaceTrackingPipelineInitialised);
     }
 
     void Update()
     {
-        if (m_faceLandmarkPtr == IntPtr.Zero) return;
+        if (m_faceLandmarkPtr == null) return;
 
         if (LandmarkName != m_currentLandmark)
             InitFaceLandmark();
 
-        Z.FaceTrackerAnchorUpdateIdentityCoefficients(m_faceTrackerPipeline, m_faceTrackerId, ref m_identity);
-        Z.FaceTrackerAnchorUpdateExpressionCoefficients(m_faceTrackerPipeline, m_faceTrackerId, ref m_expression);
+        Z.FaceLandmarkUpdate(m_faceLandmarkPtr.Value, FaceTracker.Identity, FaceTracker.Expression, m_isMirrored);
 
-        Z.FaceLandmarkUpdate(m_faceLandmarkPtr, m_identity, m_expression, m_isMirrored);
-
-        var matrix = Z.ConvertToUnityPose(Z.FaceLandmarkAnchorPose(m_faceLandmarkPtr));
+        var matrix = Z.ConvertToUnityPose(Z.FaceLandmarkAnchorPose(m_faceLandmarkPtr.Value));
         transform.localPosition = Z.GetPosition(matrix);
         transform.localRotation = Z.GetRotation(matrix);
     }
     
     void OnDestroy()
     {
-        if(m_faceLandmarkPtr != IntPtr.Zero)
-            Z.FaceLandmarkDestroy(m_faceLandmarkPtr);
+        if(m_faceLandmarkPtr != null)
+            Z.FaceLandmarkDestroy(m_faceLandmarkPtr.Value);
+        m_faceLandmarkPtr = null;
         ZapparFaceTrackingManager.DeRegisterPipelineCallback(OnFaceTrackingPipelineInitialised);
     }
 
@@ -69,7 +68,7 @@ public class ZapparFaceLandmark : MonoBehaviour
     {
         if (FaceTracker == null)
         {
-            Debug.Log("Warning: The face landmark will not work unless a Face Tracker is assigned.");
+            Debug.LogError("The face landmark will not work unless a Face Tracker is assigned.");
             return;
         }
 
@@ -81,15 +80,12 @@ public class ZapparFaceLandmark : MonoBehaviour
 
     void InitFaceLandmark()
     {
-        if (m_faceLandmarkPtr != IntPtr.Zero)
-            Z.FaceLandmarkDestroy(m_faceLandmarkPtr);
+        if (m_faceLandmarkPtr != null)
+        {
+            Z.FaceLandmarkDestroy(m_faceLandmarkPtr.Value);
+        }
         m_faceLandmarkPtr = Z.FaceLandmarkCreate((uint)LandmarkName);
         m_currentLandmark = LandmarkName;
-
-        m_identity = new float[NumIdentityCoefficients];
-        m_expression = new float[NumExpressionCoefficients];
-        for (int i = 0; i < NumIdentityCoefficients; ++i) m_identity[i] = 0.0f;
-        for (int i = 0; i < NumExpressionCoefficients; ++i) m_expression[i] = 0.0f;
     }
 
 }

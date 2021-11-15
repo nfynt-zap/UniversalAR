@@ -15,7 +15,7 @@ namespace Zappar.Editor
         {
             if (Application.isPlaying) return;
 
-            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
             m_target = (ZapparFaceTrackingTarget)target;
             m_maxTrackerAllowed = settings.ConcurrentFaceTrackerCount;
 

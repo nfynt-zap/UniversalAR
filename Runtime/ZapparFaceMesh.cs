@@ -25,21 +25,8 @@ namespace Zappar
         private IntPtr m_faceTrackingTargetPipeline;
         private int m_faceTrackingTargetId;
 
-        public const int NumIdentityCoefficients = 50;
-        public const int NumExpressionCoefficients = 29;
-
-        private float[] m_identity = null;
-        private float[] m_expression = null;
         private float[] m_faceVertices = null;
         private float[] m_faceNormals = null;
-
-        public void InitCoeffs()
-        {
-            m_identity = m_identity ?? new float[NumIdentityCoefficients];
-            m_expression = m_expression ?? new float[NumExpressionCoefficients];
-            for (int i = 0; i < NumIdentityCoefficients; ++i) m_identity[i] = 0.0f;
-            for (int i = 0; i < NumExpressionCoefficients; ++i) m_expression[i] = 0.0f;
-        }
 
         public abstract void UpdateMaterial();
         
@@ -128,17 +115,7 @@ namespace Zappar
             if (UnityMesh == null)
                 return;
 
-            if (!HaveInitialisedFaceMesh)
-            {
-                InitCoeffs();
-            }
-            else
-            {
-                Z.FaceTrackerAnchorUpdateIdentityCoefficients(m_faceTrackingTargetPipeline, m_faceTrackingTargetId, ref m_identity);
-                Z.FaceTrackerAnchorUpdateExpressionCoefficients(m_faceTrackingTargetPipeline, m_faceTrackingTargetId, ref m_expression);
-            }
-
-            Z.FaceMeshUpdate(FaceMeshPtr.Value, m_identity, m_expression, m_isMirrored);
+            Z.FaceMeshUpdate(FaceMeshPtr.Value, m_faceTracker.Identity, m_faceTracker.Expression, m_isMirrored);
 
             if (m_faceVertices==null || m_faceVertices.Length == 0)
             {

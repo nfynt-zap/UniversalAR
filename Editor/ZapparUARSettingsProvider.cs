@@ -10,6 +10,7 @@ namespace Zappar.Editor
         {
             public static GUIContent ImageTargetPreview = new GUIContent("Enable Image Tracker Preview", "Add image preview of target in editor");
             public static GUIContent ConcurrentFaceTracker = new GUIContent("Concurrent Face Trackers", "Number of faces to track at the same time");
+            public static GUIContent RequestPermissionUI = new GUIContent("Permission UI (WebGL)", "Request device permissions with additional UI on WebGL build");
             public static GUIContent RealtimeReflections = new GUIContent("Enable Realtime Reflection", "Use ZCV camera source for realtime reflection");
             public static GUIContent DebugMode = new GUIContent("ZCV debug mode", "write logs to editor or to a file ");
             public static GUIContent LogLevel = new GUIContent("ZCV log level", "Log levels");
@@ -21,6 +22,7 @@ namespace Zappar.Editor
         {
             public const string ImagePreviewProp = "m_enableImageTargetPreview";
             public const string FaceTrackerProp = "m_concurrentFaceTrackerCount";
+            public const string PermissionRequestProp = "m_permissionRequestUI";
             public const string RealtimeReflectionProp = "m_enableRealtimeReflections";
             public const string DebugModeProp = "m_debugMode";
             public const string LogLevelProp = "m_logLevel";
@@ -61,6 +63,7 @@ namespace Zappar.Editor
                     Debug.LogError("Please enable Realtime reflections from project Quality settings as well!");
                 }
             }
+            EditorGUILayout.PropertyField(settings.FindProperty(Constants.PermissionRequestProp), Styles.RequestPermissionUI);
             EditorGUILayout.EndVertical();
             EditorGUI.DrawRect(runRect, Styles.Background);
             //GUI.Box(runRect, GUIContent.none);
@@ -116,26 +119,27 @@ namespace Zappar.Editor
 
         private static bool IsSettingsAvailable()
         {
-            return File.Exists(ZapparUARSettings.MySettingsPath);
+            return File.Exists(ZapparUARSettings.MySettingsPathInPackage);
         }
 
 
         public static ZapparUARSettings GetOrCreateSettings()
         {
-            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
             if (settings == null)
             {
-                if (Directory.Exists(Path.GetDirectoryName(ZapparUARSettings.MySettingsPath)))
+                if (!Directory.Exists(Path.GetDirectoryName(ZapparUARSettings.MySettingsPathInPackage)))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(ZapparUARSettings.MySettingsPath));
+                    Directory.CreateDirectory(Path.GetDirectoryName(ZapparUARSettings.MySettingsPathInPackage));
                 }
                 settings = ScriptableObject.CreateInstance<ZapparUARSettings>();
                 settings.ImageTargetPreviewEnabled = true;
                 settings.ConcurrentFaceTrackerCount = 2;
+                settings.PermissionRequestUI = true;
                 settings.EnableRealtimeReflections = false;
                 settings.DebugMode = Z.DebugMode.UnityLog;
                 settings.LogLevel = Z.LogLevel.WARNING;
-                AssetDatabase.CreateAsset(settings, ZapparUARSettings.MySettingsPath);
+                AssetDatabase.CreateAsset(settings, ZapparUARSettings.MySettingsPathInPackage);
                 AssetDatabase.SaveAssets();
             }
             return settings;

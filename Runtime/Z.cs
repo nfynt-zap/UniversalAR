@@ -67,13 +67,13 @@ public class Z
         VERBOSE = 3
     }
 
-#if UNITY_EDITOR_OSX || UNITY_EDITOR_WIN
-    public enum DebugMode
-    {
+    public enum DebugMode : uint {
         None = 0,
         File = 1,
         UnityLog = 2
     }
+
+#if UNITY_EDITOR_OSX || UNITY_EDITOR_WIN
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void DebugLogDelegate(string str);
@@ -522,8 +522,9 @@ public class Z
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
         return zappar_is_visible_webgl();
-#endif
+#else
         return true;
+#endif
     }
 
     public static Matrix4x4 PipelineProjectionMatrix(IntPtr o, int renderWidth, int renderHeight, float zNear, float zFar, ref float[] cameraModel) {

@@ -35,7 +35,7 @@ namespace Zappar.Editor
         {
             if (Application.isPlaying) return;
             
-            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPath);
+            var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
             m_imgPreviewEnabled = settings.ImageTargetPreviewEnabled;
             m_target = (ZapparImageTrackingTarget)target;
             

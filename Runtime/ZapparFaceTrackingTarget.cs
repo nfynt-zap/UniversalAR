@@ -59,14 +59,32 @@ namespace Zappar
         private bool m_isMirrored;
         private bool m_isVisible = false;
 
+        public float[] Identity => m_identity;
+        public float[] Expression => m_expression;
+
+        private float[] m_identity = null;
+        private float[] m_expression = null;
+
+        public const int NumIdentityCoefficients = 50;
+        public const int NumExpressionCoefficients = 29;
+
         public int FaceTrackingId
         {
             get { return m_faceNumber; }
             set { m_faceNumber = (value < 0 ? 0 : value); }
         }
 
+        public void InitCoeffs()
+        {
+            m_identity = (m_identity == null || m_identity.Length < NumIdentityCoefficients) ? new float[NumIdentityCoefficients] : m_identity;
+            m_expression = (m_expression == null || m_expression.Length < NumExpressionCoefficients) ? new float[NumExpressionCoefficients] : m_expression;
+            for (int i = 0; i < NumIdentityCoefficients; ++i) m_identity[i] = 0.0f;
+            for (int i = 0; i < NumExpressionCoefficients; ++i) m_expression[i] = 0.0f;
+        }
+
         void Start()
         {
+            InitCoeffs();
             ZapparFaceTrackingManager.RegisterTracker(this, true);
 
             if (ZapparCamera.Instance != null)
@@ -89,7 +107,6 @@ namespace Zappar
                 ZapparFaceTrackingManager.FaceTrackerPipeline = faceTracker;
                 ZapparFaceTrackingManager.HasInitialized = true;
             }
-
             m_hasInitialised = true;
         }
 
@@ -122,6 +139,8 @@ namespace Zappar
                     m_isVisible = true;
                     OnSeenEvent?.Invoke();
                 }
+                Z.FaceTrackerAnchorUpdateIdentityCoefficients(ZapparFaceTrackingManager.FaceTrackerPipeline.Value, m_faceNumber, ref m_identity);
+                Z.FaceTrackerAnchorUpdateExpressionCoefficients(ZapparFaceTrackingManager.FaceTrackerPipeline.Value, m_faceNumber, ref m_expression);
                 UpdateTargetPose();
             }
             else

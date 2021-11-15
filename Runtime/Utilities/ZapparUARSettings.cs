@@ -1,12 +1,11 @@
-﻿#if UNITY_EDITOR_OSX || UNITY_EDITOR_WIN
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Zappar
 {
     public class ZapparUARSettings : ScriptableObject
     {
-        public const string MySettingsPath = "Packages/com.zappar.uar/Resources/User/ZapparUARSettings.asset";
+        public const string MySettingsPath = "User/ZapparUARSettings.asset";
+        public const string MySettingsPathInPackage = "Packages/com.zappar.uar/Resources/" + MySettingsPath;
 
         [SerializeField]
         private bool m_enableImageTargetPreview = false;
@@ -22,6 +21,14 @@ namespace Zappar
         {
             get { return m_concurrentFaceTrackerCount; }
             set { m_concurrentFaceTrackerCount = (value > 0 ? value : 2); }
+        }
+
+        [SerializeField]
+        private bool m_permissionRequestUI = true;
+        public bool PermissionRequestUI
+        {
+            get { return m_permissionRequestUI; }
+            set { m_permissionRequestUI = value; }
         }
 
         [SerializeField]
@@ -50,5 +57,3 @@ namespace Zappar
 
     }
 }
-
-#endif

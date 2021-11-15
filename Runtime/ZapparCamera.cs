@@ -8,6 +8,9 @@ namespace Zappar
     [RequireComponent(typeof(Camera))]
     public class ZapparCamera : MonoBehaviour
     {
+// 0219: variable assigned but not used
+// 0414: private field assigned but not used
+#pragma warning disable 0219, 0414  
         public interface ICameraListener
         {
             void OnZapparInitialised(IntPtr pipeline);
@@ -40,7 +43,6 @@ namespace Zappar
         private IntPtr? m_pipeline = null;
 
         private bool m_hasInitialised = false;
-        private static bool s_permissionIsGranted = false;
 
         private Matrix4x4 m_cameraPose;
         private Camera m_unityCamera = null;
@@ -57,6 +59,8 @@ namespace Zappar
         public bool CameraSourcePaused { get; private set; }
 
         public Matrix4x4 GetCameraPose => m_cameraPose;
+
+#pragma warning restore 0219, 0414 
 
         #region Unity_Methods
 
@@ -86,7 +90,8 @@ namespace Zappar
             m_cameraPose = Matrix4x4.identity;
 
             Z.Initialize();
-            s_permissionIsGranted = Z.PermissionGrantedAll();
+
+            ZPermissions.CheckAllPermissions();
         }
 
         void Update()
@@ -124,8 +129,8 @@ namespace Zappar
 
                         m_camera = Z.CameraSourceCreate(m_pipeline.Value, cameraID);
 
-                        if (!s_permissionIsGranted)
-                            Z.PermissionRequestUi();
+                        if (!ZPermissions.PermissionGrantedAll)
+                            ZPermissions.RequestPermission();
 
                         IsMirrored = (UseFrontFacingCamera && MirrorUserCameras) || (!UseFrontFacingCamera && MirrorRearCameras);
 
@@ -146,17 +151,17 @@ namespace Zappar
                 // library is initialised but camera hasn't started
                 if (!CameraHasStarted)
                 {
-                    if (!s_permissionIsGranted)
+                    if(ZPermissions.PermissionGrantedAll)
                     {
-                        // Zappar library is initialised, permissions have now been requested
-                        s_permissionIsGranted = Z.PermissionGrantedAll();
-                    }
-                    else
-                    {
-                        // Permissions have been granted but camera hasn't started
+                        //Permissions have been granted but camera isn't started
                         Z.PipelineGLContextSet(m_pipeline.Value);
                         Z.CameraSourceStart(m_camera.Value);
                         CameraHasStarted = true;
+                    }
+                    else
+                    {
+                        // Zappar library is initialised, permissions have now been requested
+                        ZPermissions.CheckAllPermissions();
                     }
                 }
                 // initialised, permissions granted, and camera started
@@ -183,8 +188,8 @@ namespace Zappar
             }
             m_hasInitialised = false;
         }
-        
-        #endregion
+
+#endregion
 
         // Register the addition/destruction of camera listeners
         public void RegisterCameraListener(ICameraListener listener, bool add)

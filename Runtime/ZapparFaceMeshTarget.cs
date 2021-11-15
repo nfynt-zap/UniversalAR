@@ -11,7 +11,6 @@ namespace Zappar
 
         private void Start()
         {
-            InitCoeffs();
             InitFaceMeshOnStart();
         }
 

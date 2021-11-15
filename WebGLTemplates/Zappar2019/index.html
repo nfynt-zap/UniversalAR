@@ -91,7 +91,8 @@
         const loader = document.querySelector("#loader");
         var gameInstance; //= UnityLoader.instantiate("gameContainer", "%UNITY_WEBGL_BUILD_URL%", { onProgress: UnityProgress }); 
 
-        WaitForZCVLoad();
+        ZAPPAR_PERMISSIONS_IMPLEMENTATION
+        //WaitForZCVLoad();
 
         function WaitForZCVLoad(){            
             if (zappar.loaded()) { 

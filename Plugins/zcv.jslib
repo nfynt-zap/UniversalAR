@@ -184,7 +184,7 @@ $zappar_support__postset: `
         return ret;
     };
 	_zappar_analytics_project_id_set = function(id) {
-        var id_val = Pointer_stringify(id);
+        var id_val = UTF8ToString(id);
         var ret = zappar.analytics_project_id_set(id_val);
         return ret;
     };
@@ -368,7 +368,7 @@ $zappar_support__postset: `
 	
     _zappar_camera_source_create = function(pipeline, device_id) {
         var pipeline_val = pipeline;
-		var device_id_val = Pointer_stringify(device_id);
+		var device_id_val = UTF8ToString(device_id);
         var ret = zappar.camera_source_create(pipeline_val, device_id_val);
         return ret;
     };
