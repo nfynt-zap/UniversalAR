@@ -62,8 +62,8 @@ namespace Zappar
         public float[] Identity => m_identity;
         public float[] Expression => m_expression;
 
-        private float[] m_identity = null;
-        private float[] m_expression = null;
+        private float[] m_identity = new float[NumIdentityCoefficients];
+        private float[] m_expression = new float[NumExpressionCoefficients];
 
         public const int NumIdentityCoefficients = 50;
         public const int NumExpressionCoefficients = 29;

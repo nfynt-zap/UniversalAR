@@ -63,6 +63,9 @@ namespace Zappar
             if (UnityMesh != null && !force)
                 return;
 
+            if (m_faceTracker == null)
+                m_faceTracker = GetFaceTrackingTarget();
+
             if (FaceMeshPtr == null)
             {
                 FaceMeshPtr = Z.FaceMeshCreate();
@@ -112,7 +115,7 @@ namespace Zappar
 
         private void UpdateMeshData()
         {
-            if (UnityMesh == null)
+            if (UnityMesh == null || m_faceTracker==null)
                 return;
 
             Z.FaceMeshUpdate(FaceMeshPtr.Value, m_faceTracker.Identity, m_faceTracker.Expression, m_isMirrored);

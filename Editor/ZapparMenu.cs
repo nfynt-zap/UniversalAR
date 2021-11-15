@@ -56,6 +56,15 @@ namespace Zappar.Editor
             Undo.RegisterCreatedObjectUndo(go, "New face mesh");
             Selection.activeGameObject = go;
         }
+        
+        [MenuItem("Zappar/Face Landmark")]
+        public static void ZapparCreateFaceLandmark()
+        {
+            GameObject faceLandmark = (GameObject)Resources.Load("Prefabs/Zappar Face Landmark");
+            GameObject go = Instantiate(faceLandmark, Vector3.zero, Quaternion.identity);
+            Undo.RegisterCreatedObjectUndo(go, "New face landmark");
+            Selection.activeGameObject = go;
+        }
 
         [MenuItem("Zappar/Image Tracker")]
         public static void ZapparCreateImageTrackingTarget()

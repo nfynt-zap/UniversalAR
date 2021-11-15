@@ -30,6 +30,7 @@ The [ZapWorks CLI](https://www.npmjs.com/package/@zappar/zapworks-cli) is a set 
     + [Zappar Camera Prefab](#zappar-camera-prefab)
     + [Face Tracker Prefab](#face-tracker-prefab)
     + [Face Mesh Prefab](#face-mesh-prefab)
+    + [Face Landmark Prefab](#face-landmark-prefab)
     + [Image Tracker Prefab](#image-tracker-prefab)
     + [Instant Tracking Prefab](#instant-tracking-prefab)
   * [Extras](#extras)
@@ -211,6 +212,14 @@ Use menu option `Zappar/Face Tracker` to place Face Tracker prefab into your hie
 Use menu option `Zappar/Face Mesh` to place Face Mesh prefab into your hierarchy. This prefab provides a 3D mesh that fits with the user's face as their expression changes and their head moves. It exposes a Face Material parameter that can be set to any valid material (a UV map is provided that aids in development). Each of the Fill* options determine whether or not the relevant portion of the mesh is 'filled' when it is rendered.
 
 A Zappar Face Mesh requires a Zappar Face Tracker instance as its "Face Tracker" property (in the inspector). The Face Mesh can appear anywhere in the scene hierarchy, however you should place it as a child of the Face Tracker if you wish for the mesh to appear correctly attached to the face.
+
+### Face Landmark Prefab
+
+![Face Landmark Settings](./Temp~/face_landmark.jpg)
+
+Use menu option `Zappar/Face Landmark` to place Face Landmark prefab into your hierarchy. This prefab provides a tracker for facial landmark like - left/right eye, nose tip/bridge/base, etc. User can define specific landmark via the `Landmark Name` property. The specified landmark is tracked in 3D space and respective game object's Transform is updated in scene.
+
+A Zappar Face Landmark requires a Zappar Face Tracker instance as its "Face Tracker" property (in the inspector). The Face Landmark can appear anywhere in the scene hierarchy, however you should place it as a child of the Face Tracker if you wish for the mesh to appear correctly attached to the face.
 
 
 ### Image Tracker Prefab

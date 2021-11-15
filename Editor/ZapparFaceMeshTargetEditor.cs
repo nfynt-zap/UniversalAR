@@ -14,7 +14,11 @@ namespace Zappar.Editor
         private void OnEnable()
         {
             m_target = (ZapparFaceMeshTarget)target;
-
+            if (m_target.FaceTrackingTarget == null)
+            {
+                Debug.Log("Assign Face tracking target for this face mesh");
+                return; 
+            }
             m_usingFullHead = m_target.UseDefaultFullHead;
 
             if(!m_target.HaveInitialisedFaceMesh)
