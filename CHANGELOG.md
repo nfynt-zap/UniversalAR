@@ -4,10 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2021-11-XX
+## [2.0.0] - 2021-11-19
 ### Added
 - Multiple face tracking with the face mesh.
-- Extra UAR setting to control permission UI prompt in WebGL.
+- UAR setting to control zappar permission UI prompt in WebGL.
 
 ### Changed
 - Instant update of image preview in editor for image tracking target.
