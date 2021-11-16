@@ -236,7 +236,11 @@ You can then import the resulting `.zpt` file into the following folder `Assets/
 
 ### Instant Tracking Prefab
 
-Use menu option `Zappar/Instant Tracker` to place Instant world tracking prefab into your hierarchy. Instant world tracking refers to the ability to attach content to a point in the world, without using a tracking image or marker. You do not need to specify any properties to use Instant World Tracking. Simply attach your content as a child of the ZapparInstantTracking GameObject and it will appear in the correct location. The Zappar Instant Tracker prefab will keep the content in front of the camera until the user taps on the screen, at which point the content will appear to remain anchored in place. You can override this tap and place behavior as you wish. Please refer to the [Instant Tracking API](#instant-world-tracking) section for further details.
+![Instant Tracking Settings](./Temp~/instant_track.jpg)
+
+Use menu option `Zappar/Instant Tracker` to place Instant world tracking prefab into your hierarchy. Instant world tracking refers to the ability to attach content to a point in the world (i.e. anchor), without using a tracking image or marker. Simply attach your content as a child of the ZapparInstantTracking GameObject and it will appear in the correct location. 
+
+The Zappar Instant Tracker prefab will keep the content in front of the camera until the user set the flag for `UserHasPlace`, at which point the content will appear to remain anchored in place. By default this behavior is mapped to user tap event (`PlaceOnTouch`), which is optional and you can instead call `ZapparInstantTrackingTarget.PlaceTrackerAnchor`. You can override this behavior as you wish. Please refer to the [Instant Tracking API](#instant-world-tracking) section for further details.
 
 **Note that this tracking is not supported in the Editor mode, due to lack of sensory data required for SLAM!**
 

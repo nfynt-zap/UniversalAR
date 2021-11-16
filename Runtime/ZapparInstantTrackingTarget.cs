@@ -6,9 +6,13 @@ namespace Zappar
     public class ZapparInstantTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
     {
         public IntPtr? InstantTracker = null;
-        private bool m_userHasPlaced = false;
+        [SerializeField, Tooltip("Offset for tracker when user hasn't placed the anchor")]
+        private Vector3 m_anchorOffsetFromCamera = new Vector3(0, 0, -5);
+        [SerializeField,Tooltip("Wait for touch event to place anchor for tracking")]
+        private bool m_placeOnTouch = true;
         private bool m_hasInitialised = false;
         private bool m_isMirrored = false;
+        public bool UserHasPlaced { get; private set; }
 
         void Start()
         {
@@ -45,14 +49,14 @@ namespace Zappar
                 return;
             }
 
-            if (!m_userHasPlaced)
+            if (!UserHasPlaced)
             {
-                Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, 0, 0, -5, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
+                Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, m_anchorOffsetFromCamera.z, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
             }
-
-            if (Input.touchCount > 0)
+            
+            if (m_placeOnTouch && Input.touchCount > 0)
             {
-                m_userHasPlaced = true;
+                UserHasPlaced = true;
             }
 
             UpdateTargetPose();
@@ -75,6 +79,16 @@ namespace Zappar
         public override Matrix4x4 AnchorPoseCameraRelative()
         {
             return Z.InstantWorldTrackerAnchorPoseCameraRelative(InstantTracker.Value, m_isMirrored);
+        }
+    
+        public void PlaceTrackerAnchor()
+        {
+            UserHasPlaced = true;
+        }
+
+        public void ResetTrackerAnchor()
+        {
+            UserHasPlaced = false;
         }
     }
 }

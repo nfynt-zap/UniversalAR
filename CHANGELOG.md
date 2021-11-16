@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Instant update of image preview in editor for image tracking target.
 - Renamed several variables across the SDK. Updating the package will result in loosing any previously set references in editor or used in scripts.
+- Updated ZapparInstantTrackingTarget to expose `UserHasPlaced` flag and additional method to place and reset virtual anchors (`PlaceTrackerAnchor`/`ResetTrackerAnchor`).
 
 ### Fixed
 - Nullable IntPtr for zappar trackers and pipeline.
