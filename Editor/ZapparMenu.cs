@@ -108,7 +108,7 @@ namespace Zappar.Editor
             Application.OpenURL("https://docs.zap.works/universal-ar/unity");
         }
 
-        [MenuItem("Zappar/Editor/Open Universal AR Settings", false, 1)]
+        [MenuItem("Zappar/Editor/Open Universal AR Settings", false, 30)]
         public static void ZapparOpenUarSettings()
         {
             SettingsService.OpenProjectSettings("Project/ZapparUARSettings");
@@ -261,7 +261,7 @@ namespace Zappar.Editor
             Debug.Log("Done updating editor related project settings for publish");
         }
 
-        [MenuItem("Zappar/Editor/Re-Import UAR Git Package", false, 3)]
+        [MenuItem("Zappar/Editor/Re-Import Universal AR Git Package", false, 30)]
         public static void ReimportUARPackage()
         {
             s_packageListRequest = Client.List(true, true);

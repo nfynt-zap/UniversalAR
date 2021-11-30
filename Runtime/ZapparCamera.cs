@@ -26,7 +26,7 @@ namespace Zappar
         [Tooltip("Selection between Front/Rear camera at runtime. Not applicable for Editor mode")]
         public bool UseFrontFacingCamera;
 
-        [Tooltip("Fix camera position at origin but apply rotation w.r.t devices' orientation")]
+        [Tooltip("Fix camera position at origin but apply rotation w.r.t devices' orientation. Leave " + nameof(anchorOrigin) + " (above) as 'None' for this setting.")]
         public bool CameraAttitudeFromGyro;
 
         public bool MirrorRearCameras = false;

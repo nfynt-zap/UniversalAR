@@ -6,7 +6,7 @@ namespace Zappar
     public class ZapparInstantTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
     {
         public IntPtr? InstantTracker = null;
-        [SerializeField, Tooltip("Offset for tracker when user hasn't placed the anchor")]
+        [SerializeField, Tooltip("Offset the tracker in camera view when user hasn't placed the anchor")]
         private Vector3 m_anchorOffsetFromCamera = new Vector3(0, 0, -5);
         [SerializeField,Tooltip("Wait for touch event to place anchor for tracking")]
         private bool m_placeOnTouch = true;
