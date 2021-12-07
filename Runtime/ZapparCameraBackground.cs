@@ -95,7 +95,7 @@ namespace Zappar
 
             m_backgroundCamera.projectionMatrix = Z.PipelineProjectionMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height, m_backgroundCamera.nearClipPlane, m_backgroundCamera.farClipPlane, ref m_camerModel);
 
-            Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, ref m_textureMatElements, Screen.width, Screen.height, ZapparCamera.Instance.IsMirrored);
+            Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, ref m_textureMatElements, Screen.width, Screen.height, ZapparCamera.Instance.MirrorCamera);
 
             UpdateTextureMatrix();
 

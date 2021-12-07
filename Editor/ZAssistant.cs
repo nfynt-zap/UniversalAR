@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Zappar
+namespace Zappar.Editor
 {
     [Flags]
     public enum ZProjectSettings
@@ -25,6 +25,15 @@ namespace Zappar
         AndroidMin = ZProjectSettings.AndroidArchitexture,
         IosAll = ZProjectSettings.General | ZProjectSettings.GraphicsOptimum | ZProjectSettings.IosPermissions,
         IosMin = ZProjectSettings.IosPermissions
+    }
+
+    static class ZResources
+    {
+        public const string StandardTransparentMat = "Packages/com.zappar.uar/Materials/Transparent.mat";
+        public const string StandardDepthMaskMat = "Packages/com.zappar.uar/Materials/Depth Mask.mat";
+        public const string StandardUVMat = "Packages/com.zappar.uar/Materials/UV.mat";
+        public const string StandardDefaultMat = "Packages/com.zappar.uar/Materials/Default.mat";
+        public const string StandardInvertedSurfaceMat = "Packages/com.zappar.uar/Materials/InvertedSurface.mat";
     }
 
     public class ZAssistant
@@ -125,6 +134,102 @@ namespace Zappar
 #endif
         }
 
+        #region ZapparResources
 
+        public static GameObject GetZapparCamera(bool userFacing)
+        {
+            GameObject go = new GameObject("Zappar Camera", new[] { typeof(Camera), typeof(ZapparCamera) });
+            GameObject child = new GameObject("Zappar Camera Background", new[] { typeof(Camera), typeof(ZapparCameraBackground) });
+            child.GetComponent<Camera>().cullingMask = 0;
+            child.tag = "MainCamera";
+            child.transform.SetParent(go.transform);
+            go.GetComponent<Camera>().clearFlags = CameraClearFlags.Nothing;
+            if(userFacing)
+            {
+                go.GetComponent<ZapparCamera>().UseFrontFacingCamera = true;
+                go.GetComponent<ZapparCamera>().MirrorCamera = true;
+            }
+            else
+            {
+                go.GetComponent<ZapparCamera>().UseFrontFacingCamera = false;
+                go.GetComponent<ZapparCamera>().MirrorCamera = false;
+            }
+            return go;
+        }
+
+        public static GameObject GetZapparMultiFaceTrackingTarget()
+        {
+            GameObject go = new GameObject("Zappar Multi Face Tracking Target", new[] { typeof(ZapparMultiFaceTrackingTarget) });
+            return go;
+        }
+
+        public static GameObject GetZapparFaceTrackingAnchor()
+        {
+            GameObject go = new GameObject("Zappar Face Tracking Anchor", new[] { typeof(ZapparFaceTrackingAnchor) });
+            GameObject child = GetZapparFullHeadModel();
+            child.transform.SetParent(go.transform);
+            child = GetZapparFullHeadDepthMask();
+            child.transform.SetParent(go.transform);
+            return go;
+        }
+
+        public static GameObject GetZapparFaceMeshTarget()
+        {
+            GameObject go = new GameObject("Zappar Face Mesh", new[]
+            {
+                typeof(MeshFilter),
+                typeof(MeshRenderer),
+                typeof(ZapparFaceMeshTarget)
+            });
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.StandardUVMat);
+            go.GetComponent<ZapparFaceMeshTarget>().FaceMaterial = mat;
+            go.GetComponent<ZapparFaceMeshTarget>().UseDefaultFullHead = true;
+            go.GetComponent<MeshRenderer>().material = mat;
+            return go;
+        }
+
+        public static GameObject GetZapparFaceLandmark()
+        {
+            GameObject go = new GameObject("Zappar Face Landmark", new[] { typeof(ZapparFaceLandmark) });
+            return go;
+        }
+
+        public static GameObject GetZapparImageTrackingTarget()
+        {
+            GameObject go = new GameObject("Zappar Image Tracking Target", new[] { typeof(ZapparImageTrackingTarget) });
+            return go;
+        }
+
+        public static GameObject GetZapparInstantTrackingTarget()
+        {
+            GameObject go = new GameObject("Zappar Instant Tracking Target", new[] { typeof(ZapparInstantTrackingTarget) });
+            return go;
+        }
+
+        public static GameObject GetZapparFullHeadModel()
+        {
+            GameObject go = new GameObject("Zappar Full Head Model", new[] {typeof(MeshFilter),
+            typeof(MeshRenderer),
+            typeof(ZapparFullHeadModel)});
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.StandardTransparentMat);
+            go.GetComponent<ZapparFullHeadModel>().HeadMaterial = mat;
+            go.GetComponent<MeshRenderer>().material = mat;
+            go.tag = "EditorOnly";
+            return go;
+        }
+
+        public static GameObject GetZapparFullHeadDepthMask()
+        {
+            GameObject go = new GameObject("Zappar Full Head Model", new[] {typeof(MeshFilter),
+            typeof(MeshRenderer),
+            typeof(ZapparFaceDepthMask)});
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.StandardDepthMaskMat);
+            go.GetComponent<ZapparFaceDepthMask>().FaceMaterial = mat;
+            go.GetComponent<ZapparFaceDepthMask>().UseDefaultFullHead = true;
+            go.GetComponent<MeshRenderer>().material = mat;
+            return go;
+        }
+        
+        #endregion
     }
 }

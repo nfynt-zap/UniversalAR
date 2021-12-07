@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Zappar
+namespace Zappar.Obsolete
 {
     internal static class ZapparFaceTrackingManager
     {

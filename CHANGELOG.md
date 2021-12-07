@@ -4,9 +4,21 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2021-12-XX
+### Added
+- Multiple face tracking
+
+### Changed
+- New flow for adding Face tracking target and subsequent anchors.
+- Removed zappar prefabs from the Resources folder to optimize the build size.
+- Improved anchor placement for Instant tracker with permissible range for Z-movement before the anchor placement. Enable this behaviour by checking the flag `MoveAnchorOnZ`.
+- Replaced `MirrorRearCameras` and `MirrorUserCamera` under `ZapparCamera.cs` with `MirrorCamera`.
+- Zappar Menu order has been updated.
+
+
 ## [2.0.0] - 2021-11-19
 ### Added
-- Multiple face tracking with the face mesh.
+- Support for facial landmarks in face tracking.
 - UAR setting to control zappar permission UI prompt in WebGL.
 
 ### Changed

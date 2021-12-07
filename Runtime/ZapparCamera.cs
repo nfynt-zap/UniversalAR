@@ -29,9 +29,8 @@ namespace Zappar
         [Tooltip("Fix camera position at origin but apply rotation w.r.t devices' orientation. Leave " + nameof(anchorOrigin) + " (above) as 'None' for this setting.")]
         public bool CameraAttitudeFromGyro;
 
-        public bool MirrorRearCameras = false;
-
-        public bool MirrorUserCameras = true;
+        [Tooltip("Mirror the device camera stream")]
+        public bool MirrorCamera = false;
 
         [CameraSourcesListPopup]
         [Tooltip("Select camera to use when in Play mode.")]
@@ -49,8 +48,6 @@ namespace Zappar
         private float[] m_cameraModel = null;
         private List<ICameraListener> m_listeners = new List<ICameraListener>();
         private bool autoPausedWebglCamera = false;
-
-        public bool IsMirrored { get; private set; }
 
         public IntPtr GetPipeline => m_pipeline.Value;
 
@@ -132,13 +129,11 @@ namespace Zappar
                         if (!ZPermissions.PermissionGrantedAll)
                             ZPermissions.RequestPermission();
 
-                        IsMirrored = (UseFrontFacingCamera && MirrorUserCameras) || (!UseFrontFacingCamera && MirrorRearCameras);
-
                         // The Zappar library has been initialised and _this_ pipeline is created, so it is safe for 
                         // any listeners to now initialise.
                         foreach (ICameraListener listener in m_listeners)
                         {
-                            listener.OnMirroringUpdate(IsMirrored);
+                            listener.OnMirroringUpdate(MirrorCamera);
                             listener.OnZapparInitialised(m_pipeline.Value);
                         }
 

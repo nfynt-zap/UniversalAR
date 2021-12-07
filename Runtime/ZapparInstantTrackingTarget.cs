@@ -6,10 +6,21 @@ namespace Zappar
     public class ZapparInstantTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
     {
         public IntPtr? InstantTracker = null;
-        [SerializeField, Tooltip("Offset the tracker in camera view when user hasn't placed the anchor")]
+        [SerializeField, Tooltip("Offset for anchor in camera view before the placement")]
         private Vector3 m_anchorOffsetFromCamera = new Vector3(0, 0, -5);
-        [SerializeField,Tooltip("Wait for touch event to place anchor for tracking")]
+        [SerializeField,Tooltip("Accept touch event to place the anchor for tracking")]
         private bool m_placeOnTouch = true;
+        [Tooltip("Move the anchor along z-direction before the placement")]
+        public bool MoveAnchorOnZ = false;
+        [HideInInspector, SerializeField]
+        private ZapparCamera m_zCamera;
+        [HideInInspector, SerializeField]
+        private float m_minZDistance = 30.0f;
+        [HideInInspector, SerializeField]
+        private float m_maxZDistance = 80.0f;
+
+        private float m_maxCameraRot = 40.0f;
+
         private bool m_hasInitialised = false;
         private bool m_isMirrored = false;
         public bool UserHasPlaced { get; private set; }
@@ -51,7 +62,15 @@ namespace Zappar
 
             if (!UserHasPlaced)
             {
-                Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, m_anchorOffsetFromCamera.z, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
+                if (MoveAnchorOnZ && m_zCamera != null && m_zCamera.transform.rotation.eulerAngles.x < m_maxCameraRot)
+                {
+                    float factor = Mathf.Lerp(m_minZDistance, m_maxZDistance, m_zCamera.transform.rotation.eulerAngles.x / m_maxCameraRot);
+                    Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, -1f * factor, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
+                }
+                else
+                {
+                    Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, m_anchorOffsetFromCamera.z, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
+                }
             }
             
             if (m_placeOnTouch && Input.touchCount > 0)

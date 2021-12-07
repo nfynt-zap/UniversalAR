@@ -15,7 +15,7 @@ namespace Zappar
         public bool FillMouth;
         public bool FillNeck;
 
-        private ZapparFaceTrackingTarget m_faceTracker;
+        private ZapparFaceTrackingAnchor m_faceTracker;
 
         public Mesh UnityMesh { get; protected set; } = null;
         public bool HaveInitialisedFaceMesh { get; protected set; } = false;
@@ -30,18 +30,18 @@ namespace Zappar
 
         public abstract void UpdateMaterial();
         
-        public abstract ZapparFaceTrackingTarget GetFaceTrackingTarget();
+        public abstract ZapparFaceTrackingAnchor GetFaceTrackingAnchor();
 
         public void InitFaceMeshOnStart()
         {
-            m_faceTracker = GetFaceTrackingTarget();
+            m_faceTracker = GetFaceTrackingAnchor();
             if (m_faceTracker == null) 
             { 
-                Debug.LogError("No face tracking target reference found!");
+                Debug.LogError("Missing face tracking anchor reference!");
                 return; 
             }
 
-            ZapparFaceTrackingManager.RegisterPipelineCallback(OnFaceTrackerPipelineInitialised);
+            m_faceTracker.RegisterPipelineInitCallback(OnFaceTrackerPipelineInitialised, true);
 
             CreateMesh(true);
         }
@@ -49,7 +49,7 @@ namespace Zappar
         private void OnFaceTrackerPipelineInitialised(IntPtr pipeline, bool mirrored)
         {
             m_faceTrackingTargetPipeline = pipeline;
-            m_faceTrackingTargetId = m_faceTracker.FaceTrackingId;
+            m_faceTrackingTargetId = m_faceTracker.FaceTrackerIndex;
             m_isMirrored = mirrored;
 
             m_hasInitialised = true;
@@ -64,7 +64,7 @@ namespace Zappar
                 return;
 
             if (m_faceTracker == null)
-                m_faceTracker = GetFaceTrackingTarget();
+                m_faceTracker = GetFaceTrackingAnchor();
 
             if (FaceMeshPtr == null)
             {
@@ -149,7 +149,7 @@ namespace Zappar
 
         void OnDestroy()
         {
-            ZapparFaceTrackingManager.DeRegisterPipelineCallback(OnFaceTrackerPipelineInitialised);
+            m_faceTracker.RegisterPipelineInitCallback(OnFaceTrackerPipelineInitialised, false);
             if (FaceMeshPtr != null && Application.isPlaying)
                 Z.FaceMeshDestroy(FaceMeshPtr.Value);
 
