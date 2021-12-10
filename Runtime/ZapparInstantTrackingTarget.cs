@@ -7,7 +7,7 @@ namespace Zappar
     {
         public IntPtr? InstantTracker = null;
         [SerializeField, Tooltip("Offset for anchor in camera view before the placement")]
-        private Vector3 m_anchorOffsetFromCamera = new Vector3(0, 0, -5);
+        private Vector3 m_anchorOffsetFromCamera = new Vector3(0, 0, -3);
         [SerializeField,Tooltip("Accept touch event to place the anchor for tracking")]
         private bool m_placeOnTouch = true;
         [Tooltip("Move the anchor along z-direction before the placement")]
@@ -15,16 +15,16 @@ namespace Zappar
         [HideInInspector, SerializeField]
         private ZapparCamera m_zCamera;
         [HideInInspector, SerializeField]
-        private float m_minZDistance = 30.0f;
+        private float m_minZDistance = 3.0f;
         [HideInInspector, SerializeField]
-        private float m_maxZDistance = 80.0f;
+        private float m_maxZDistance = 40.0f;
 
-        private float m_maxCameraRot = 40.0f;
-
+        private const float m_maxCameraRot = 40.0f;
+        
         private bool m_hasInitialised = false;
         private bool m_isMirrored = false;
         public bool UserHasPlaced { get; private set; }
-
+        
         void Start()
         {
             if (ZapparCamera.Instance != null)
@@ -64,10 +64,10 @@ namespace Zappar
             {
                 if (MoveAnchorOnZ && m_zCamera != null && m_zCamera.transform.rotation.eulerAngles.x < m_maxCameraRot)
                 {
-                    float factor = Mathf.Lerp(m_minZDistance, m_maxZDistance, m_zCamera.transform.rotation.eulerAngles.x / m_maxCameraRot);
-                    Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, -1f * factor, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
+                    float dist = Mathf.Lerp(m_maxZDistance, m_minZDistance, m_zCamera.transform.rotation.eulerAngles.x / m_maxCameraRot);
+                    Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, -1f * dist, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
                 }
-                else
+                else if(!MoveAnchorOnZ)
                 {
                     Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(InstantTracker.Value, m_anchorOffsetFromCamera.x, m_anchorOffsetFromCamera.y, m_anchorOffsetFromCamera.z, Z.InstantTrackerTransformOrientation.MINUS_Z_AWAY_FROM_USER);
                 }

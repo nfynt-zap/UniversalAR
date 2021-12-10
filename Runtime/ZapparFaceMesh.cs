@@ -20,13 +20,10 @@ namespace Zappar
         public Mesh UnityMesh { get; protected set; } = null;
         public bool HaveInitialisedFaceMesh { get; protected set; } = false;
 
-        private bool m_isMirrored;
-
-        private IntPtr m_faceTrackingTargetPipeline;
-        private int m_faceTrackingTargetId;
-
         private float[] m_faceVertices = null;
         private float[] m_faceNormals = null;
+
+        private bool m_isMirrored = false;
 
         public abstract void UpdateMaterial();
         
@@ -38,6 +35,7 @@ namespace Zappar
             if (m_faceTracker == null) 
             { 
                 Debug.LogError("Missing face tracking anchor reference!");
+                gameObject.SetActive(false);
                 return; 
             }
 
@@ -48,8 +46,6 @@ namespace Zappar
 
         private void OnFaceTrackerPipelineInitialised(IntPtr pipeline, bool mirrored)
         {
-            m_faceTrackingTargetPipeline = pipeline;
-            m_faceTrackingTargetId = m_faceTracker.FaceTrackerIndex;
             m_isMirrored = mirrored;
 
             m_hasInitialised = true;
@@ -141,7 +137,7 @@ namespace Zappar
 
         void Update()
         {
-            if (!m_hasInitialised || Z.FaceTrackerAnchorCount(m_faceTrackingTargetPipeline) <= m_faceTrackingTargetId)
+            if (!m_hasInitialised || !m_faceTracker.FaceIsVisible)
                 return;
 
             UpdateMeshData();

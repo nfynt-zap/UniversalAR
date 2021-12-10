@@ -29,11 +29,19 @@ namespace Zappar.Editor
 
     static class ZResources
     {
-        public const string StandardTransparentMat = "Packages/com.zappar.uar/Materials/Transparent.mat";
-        public const string StandardDepthMaskMat = "Packages/com.zappar.uar/Materials/Depth Mask.mat";
-        public const string StandardUVMat = "Packages/com.zappar.uar/Materials/UV.mat";
-        public const string StandardDefaultMat = "Packages/com.zappar.uar/Materials/Default.mat";
-        public const string StandardInvertedSurfaceMat = "Packages/com.zappar.uar/Materials/InvertedSurface.mat";
+#if ZAPPAR_SRP
+        public const string TransparentMat = "Packages/com.zappar.uar/Materials/URP/Transparent.mat";
+        public const string DepthMaskMat = "Packages/com.zappar.uar/Materials/URP/Depth Mask.mat";
+        public const string UVMat = "Packages/com.zappar.uar/Materials/URP/UV.mat";
+        public const string DefaultMat = "Packages/com.zappar.uar/Materials/URP/Default.mat";
+        public const string InvertedSurfaceMat = "Packages/com.zappar.uar/Materials/InvertedSurface.mat";
+#else
+        public const string TransparentMat = "Packages/com.zappar.uar/Materials/Transparent.mat";
+        public const string DepthMaskMat = "Packages/com.zappar.uar/Materials/Depth Mask.mat";
+        public const string UVMat = "Packages/com.zappar.uar/Materials/UV.mat";
+        public const string DefaultMat = "Packages/com.zappar.uar/Materials/Default.mat";
+        public const string InvertedSurfaceMat = "Packages/com.zappar.uar/Materials/InvertedSurface.mat";
+#endif
     }
 
     public class ZAssistant
@@ -134,7 +142,7 @@ namespace Zappar.Editor
 #endif
         }
 
-        #region ZapparResources
+#region ZapparResources
 
         public static GameObject GetZapparCamera(bool userFacing)
         {
@@ -144,6 +152,7 @@ namespace Zappar.Editor
             child.tag = "MainCamera";
             child.transform.SetParent(go.transform);
             go.GetComponent<Camera>().clearFlags = CameraClearFlags.Nothing;
+            go.GetComponent<Camera>().depth = 1;
             if(userFacing)
             {
                 go.GetComponent<ZapparCamera>().UseFrontFacingCamera = true;
@@ -181,7 +190,7 @@ namespace Zappar.Editor
                 typeof(MeshRenderer),
                 typeof(ZapparFaceMeshTarget)
             });
-            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.StandardUVMat);
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.UVMat);
             go.GetComponent<ZapparFaceMeshTarget>().FaceMaterial = mat;
             go.GetComponent<ZapparFaceMeshTarget>().UseDefaultFullHead = true;
             go.GetComponent<MeshRenderer>().material = mat;
@@ -211,7 +220,7 @@ namespace Zappar.Editor
             GameObject go = new GameObject("Zappar Full Head Model", new[] {typeof(MeshFilter),
             typeof(MeshRenderer),
             typeof(ZapparFullHeadModel)});
-            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.StandardTransparentMat);
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.TransparentMat);
             go.GetComponent<ZapparFullHeadModel>().HeadMaterial = mat;
             go.GetComponent<MeshRenderer>().material = mat;
             go.tag = "EditorOnly";
@@ -220,16 +229,16 @@ namespace Zappar.Editor
 
         public static GameObject GetZapparFullHeadDepthMask()
         {
-            GameObject go = new GameObject("Zappar Full Head Model", new[] {typeof(MeshFilter),
+            GameObject go = new GameObject("Zappar Full Head Depth Mask", new[] {typeof(MeshFilter),
             typeof(MeshRenderer),
             typeof(ZapparFaceDepthMask)});
-            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.StandardDepthMaskMat);
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(ZResources.DepthMaskMat);
             go.GetComponent<ZapparFaceDepthMask>().FaceMaterial = mat;
             go.GetComponent<ZapparFaceDepthMask>().UseDefaultFullHead = true;
             go.GetComponent<MeshRenderer>().material = mat;
             return go;
         }
         
-        #endregion
+#endregion
     }
 }

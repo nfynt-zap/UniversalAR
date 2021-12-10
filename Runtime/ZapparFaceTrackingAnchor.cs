@@ -39,6 +39,8 @@ namespace Zappar
             set { m_faceNumber = (value < 0 ? 0 : value); }
         }
 
+        public bool FaceIsVisible => m_isVisible;
+
         public void RegisterPipelineInitCallback(FaceTrackerInitialized method, bool add)
         {
             if (add && !m_initListeners.Contains(method))

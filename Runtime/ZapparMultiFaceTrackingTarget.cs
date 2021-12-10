@@ -6,14 +6,14 @@ namespace Zappar
 {
     public class ZapparMultiFaceTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
     {
-        public int NumberOfTrackers => FaceTrackers.Count;
+        public int NumberOfAnchors => FaceAnchors.Count;
         public bool HasInitialized { get; private set; }
         public bool IsMirrored { get; private set; }
 
         private IntPtr? m_faceTrackingPipeline = null;
 
         [SerializeField]
-        public List<ZapparFaceTrackingAnchor> FaceTrackers = new List<ZapparFaceTrackingAnchor>();
+        public List<ZapparFaceTrackingAnchor> FaceAnchors = new List<ZapparFaceTrackingAnchor>();
         private List<bool> m_trackerIsTracked = new List<bool>();
 
         public IntPtr? FaceTrackerPipeline
@@ -28,7 +28,7 @@ namespace Zappar
         public void OnZapparInitialised(IntPtr pipeline)
         {
             IntPtr faceTracker = Z.FaceTrackerCreate(pipeline);
-            Z.FaceTrackerMaxFacesSet(faceTracker, NumberOfTrackers);
+            Z.FaceTrackerMaxFacesSet(faceTracker, NumberOfAnchors);
 
 #if UNITY_EDITOR
             byte[] faceTrackerData = Z.LoadRawBytes(Z.FaceTrackingModelPath());
@@ -39,7 +39,7 @@ namespace Zappar
             FaceTrackerPipeline = faceTracker;
             HasInitialized = true;
 
-            foreach (var anchor in FaceTrackers)
+            foreach (var anchor in FaceAnchors)
             {
                 anchor?.InitFaceTracker();
                 m_trackerIsTracked.Add(false);
@@ -68,7 +68,7 @@ namespace Zappar
             {
                 if (Int32.TryParse(Z.FaceTrackerAnchorId(FaceTrackerPipeline.Value, i), out int id))
                 {
-                    var anchor = FaceTrackers.Find(ent => ent.FaceTrackerIndex == id);
+                    var anchor = FaceAnchors.Find(ent => ent.FaceTrackerIndex == id);
                     if (anchor != null)
                     {
                         anchor.AnchorId = i;
@@ -77,9 +77,9 @@ namespace Zappar
                 }
             }
 
-            for (int i = 0; i < NumberOfTrackers; ++i)
+            for (int i = 0; i < NumberOfAnchors; ++i)
             {
-                FaceTrackers[i].UpdateAnchor(m_trackerIsTracked[i]);
+                FaceAnchors[i].UpdateAnchor(m_trackerIsTracked[i]);
                 m_trackerIsTracked[i] = false;
             }
         }
@@ -99,20 +99,20 @@ namespace Zappar
 
         public void RegisterAnchor(ZapparFaceTrackingAnchor anchor, bool add)
         {
-            if (add && !FaceTrackers.Contains(anchor))
+            if (add && !FaceAnchors.Contains(anchor))
             {
-                FaceTrackers.Add(anchor);
+                FaceAnchors.Add(anchor);
             }
-            else if(!add && FaceTrackers.Contains(anchor))
+            else if(!add && FaceAnchors.Contains(anchor))
             {
-                FaceTrackers.Remove(anchor);
+                FaceAnchors.Remove(anchor);
             }
         }
 
         public override Matrix4x4 AnchorPoseCameraRelative()
         {
-            if (FaceTrackers.Count > 0) 
-                return FaceTrackers[0].AnchorPoseCameraRelative();
+            if (FaceAnchors.Count > 0) 
+                return FaceAnchors[0].AnchorPoseCameraRelative();
 
             return Matrix4x4.identity;
         }
