@@ -44,7 +44,7 @@ namespace Zappar.Editor
 #endif
     }
 
-    public class ZAssistant
+    internal class ZAssistant
     {
         public static bool MatchConfigSettings(ZProjectSettingsConfig config, ZProjectSettings setting)
         {

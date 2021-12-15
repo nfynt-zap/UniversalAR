@@ -6,14 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [3.0.0] - 2021-12-XX
 ### Added
-- Multiple face tracking
+- Multiple face tracking.
+- Switch between front and rear camera at runtime using `SwitchToFrontCameraMode` and `SwitchToRearCameraMode` respectively.
+- Toggle the active state of Zappar Camera to pause and unpause. Use `ToggleActiveCamera` method in ZapparCamera.cs.
 
 ### Changed
 - New flow for adding Face tracking target and subsequent anchors.
-- Removed zappar prefabs from the Resources folder to optimize the build size.
+- Removed zappar prefabs from the Resources folder to optimize the build size. Instead, now use Zappar editor menu to create Zappar obects in scene.
 - Improved anchor placement for Instant tracker with permissible range for Z-movement before the anchor placement. Enable this behaviour by checking the flag `MoveAnchorOnZ`.
 - Replaced `MirrorRearCameras` and `MirrorUserCamera` under `ZapparCamera.cs` with `MirrorCamera`.
-- Zappar Menu order has been updated.
+- Moved ZapparReflectionProbe from ZaparCamera object context menu to Editor Menu.
+- Zappar Menu order in Editor has been updated.
+
+### Fixed
+- Zappar tracking target to register with Zappar camera pipeline whenever set to active, rather than having to enabled it along with ZapparCamera or keeping it active at the start of the scene.
 
 
 ## [2.0.0] - 2021-11-19

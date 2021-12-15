@@ -36,13 +36,23 @@ namespace Zappar
             if (FaceTrackingAnchor == null)
             {
                 FaceTrackingAnchor = transform.GetComponentInParent<ZapparFaceTrackingAnchor>();
+                if (FaceTrackingAnchor == null)
+                {
+                    Debug.LogError("Missing face tracking anchor reference!");
+                    gameObject.SetActive(false);
+                    return;
+                }
             }
-            FaceTrackingAnchor?.RegisterPipelineInitCallback(OnFaceTrackingPipelineInitialised, true);
+
+            FaceTrackingAnchor.RegisterPipelineInitCallback(OnFaceTrackingPipelineInitialised, true);
+
+            if (FaceTrackingAnchor.FaceTrackingTarget.HasInitialized && m_faceLandmarkPtr == null)
+                OnFaceTrackingPipelineInitialised(FaceTrackingAnchor.FaceTrackingTarget.FaceTrackerPipeline.Value, FaceTrackingAnchor.FaceTrackingTarget.IsMirrored);
         }
 
         private void Update()
         {
-            if (m_faceLandmarkPtr == null) return;
+            if (m_faceLandmarkPtr == null || !FaceTrackingAnchor.FaceIsVisible) return;
 
             if (LandmarkName != m_currentLandmark)
                 InitFaceLandmark();

@@ -5,20 +5,39 @@ using UnityEngine.Rendering;
 namespace Zappar
 {
     [RequireComponent(typeof(Camera))]
-    public class ZapparCameraBackground : MonoBehaviour
+    public class ZapparCameraBackground : MonoBehaviour, ICameraListener
     {
         private Material m_cameraMaterial=null;
 
-        private bool m_initialised = false;
         private Texture2D m_camTexture = null;
         private Matrix4x4 m_textureMatrix;
         private float[] m_textureMatElements = null;
         private Camera m_backgroundCamera = null;
-        private ZapparCamera m_zapparCamera = null;
         private float[] m_camerModel = null;
+
+        private IntPtr m_pipeline;
+        private bool m_hasInitialized = false;
+        private bool m_isMirrored = false;
+        private bool m_isPaused = false;
 
         public Texture2D GetCameraTexture => m_camTexture;
         public Matrix4x4 GetTextureMatrix => m_textureMatrix;
+
+        public void OnZapparInitialized(System.IntPtr pipeline)
+        {
+            m_pipeline = pipeline;
+            m_hasInitialized = true;
+        }
+
+        public void OnZapparCameraPaused(bool pause)
+        {
+            m_isPaused = pause;
+        }
+
+        public void OnMirroringUpdate(bool mirrored)
+        {
+            m_isMirrored = mirrored;
+        }
 
         private void Awake()
         {
@@ -31,8 +50,20 @@ namespace Zappar
             m_textureMatrix = new Matrix4x4();
             m_textureMatElements = new float[16];
             m_backgroundCamera = GetComponent<Camera>();
-            m_zapparCamera = GetComponentInParent<ZapparCamera>();
             m_camerModel = new float[] { 0, 0, 0, 0, 0, 0 };
+        }
+
+        private void Start()
+        {
+            if (ZapparCamera.Instance != null)
+                ZapparCamera.Instance.RegisterCameraListener(this, true);
+
+            if (ZapparCamera.Instance.CameraSourceInitialized && !m_hasInitialized)
+            {
+                OnMirroringUpdate(ZapparCamera.Instance.MirrorCamera);
+                OnZapparCameraPaused(ZapparCamera.Instance.CameraSourcePaused);
+                OnZapparInitialized(ZapparCamera.Instance.GetPipeline);
+            }
         }
 
         void Point(float x, float y)
@@ -82,29 +113,21 @@ namespace Zappar
 #endif
         void Update()
         {
-            if (m_cameraMaterial == null || m_zapparCamera == null)
+            if (m_cameraMaterial == null || !m_hasInitialized || m_isPaused)
                 return;
 
-            if (!m_initialised)
-            {
-                m_initialised = Z.HasInitialized() && m_zapparCamera.CameraHasStarted;
-                return;
-            }
+            m_backgroundCamera.projectionMatrix = Z.PipelineProjectionMatrix(m_pipeline, Screen.width, Screen.height, m_backgroundCamera.nearClipPlane, m_backgroundCamera.farClipPlane, ref m_camerModel);
 
-            if (m_zapparCamera.CameraSourcePaused) return;
-
-            m_backgroundCamera.projectionMatrix = Z.PipelineProjectionMatrix(ZapparCamera.Instance.GetPipeline, Screen.width, Screen.height, m_backgroundCamera.nearClipPlane, m_backgroundCamera.farClipPlane, ref m_camerModel);
-
-            Z.PipelineCameraFrameTextureMatrix(ZapparCamera.Instance.GetPipeline, ref m_textureMatElements, Screen.width, Screen.height, ZapparCamera.Instance.MirrorCamera);
+            Z.PipelineCameraFrameTextureMatrix(m_pipeline, ref m_textureMatElements, Screen.width, Screen.height, m_isMirrored);
 
             UpdateTextureMatrix();
 
             m_cameraMaterial.SetMatrix("_nativeTextureMatrix", m_textureMatrix);
 
-            m_camTexture = Z.PipelineCameraFrameTexture(ZapparCamera.Instance.GetPipeline);
+            m_camTexture = Z.PipelineCameraFrameTexture(m_pipeline);
+
             if (m_camTexture != null)
                 m_cameraMaterial.mainTexture = m_camTexture;
-
         }
 
         private void UpdateTextureMatrix()

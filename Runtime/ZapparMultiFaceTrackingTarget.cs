@@ -4,11 +4,12 @@ using UnityEngine;
 
 namespace Zappar
 {
-    public class ZapparMultiFaceTrackingTarget : ZapparTrackingTarget, ZapparCamera.ICameraListener
+    public class ZapparMultiFaceTrackingTarget : ZapparTrackingTarget, ICameraListener
     {
         public int NumberOfAnchors => FaceAnchors.Count;
         public bool HasInitialized { get; private set; }
         public bool IsMirrored { get; private set; }
+        public bool IsPaused { get; private set; }
 
         private IntPtr? m_faceTrackingPipeline = null;
 
@@ -25,7 +26,7 @@ namespace Zappar
             }
         }
 
-        public void OnZapparInitialised(IntPtr pipeline)
+        public void OnZapparInitialized(IntPtr pipeline)
         {
             IntPtr faceTracker = Z.FaceTrackerCreate(pipeline);
             Z.FaceTrackerMaxFacesSet(faceTracker, NumberOfAnchors);
@@ -46,6 +47,8 @@ namespace Zappar
             }
         }
 
+        public void OnZapparCameraPaused(bool pause) { IsPaused = pause; }
+
         public void OnMirroringUpdate(bool mirrored)
         {
             IsMirrored = mirrored;
@@ -55,11 +58,18 @@ namespace Zappar
         {
             if (ZapparCamera.Instance != null)
                 ZapparCamera.Instance.RegisterCameraListener(this, true);
+
+            if (ZapparCamera.Instance.CameraSourceInitialized && !HasInitialized)
+            {
+                OnMirroringUpdate(ZapparCamera.Instance.MirrorCamera);
+                OnZapparCameraPaused(ZapparCamera.Instance.CameraSourcePaused);
+                OnZapparInitialized(ZapparCamera.Instance.GetPipeline);
+            }
         }
 
         private void Update()
         {
-            if (!HasInitialized || FaceTrackerPipeline == null)
+            if (!HasInitialized || FaceTrackerPipeline == null || IsPaused)
                 return;
 
             int count = Z.FaceTrackerAnchorCount(FaceTrackerPipeline.Value);

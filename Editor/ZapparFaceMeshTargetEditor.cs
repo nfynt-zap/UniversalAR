@@ -21,7 +21,7 @@ namespace Zappar.Editor
             }
             m_usingFullHead = m_target.UseDefaultFullHead;
 
-            if(!m_target.HaveInitialisedFaceMesh)
+            if(!m_target.HaveInitializedFaceMesh)
             {
                 m_target.CreateMesh();
             }

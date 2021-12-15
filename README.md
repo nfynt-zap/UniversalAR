@@ -259,11 +259,12 @@ The Zappar Instant Tracker prefab will keep the content in front of the camera u
 ![alt text](./Temp~/real_ref.jpg "Realtime reflection")
 
 To enable the realtime reflection for your reflective materials, follow the following process:
-1. Make sure realtime reflection is enabled from Unity project settings. `Edit/ProjectSettings/Quality` and check `Realtime Reflection Probes`.
+1. Make sure realtime reflection is enabled in your Unity project settings. `Edit/ProjectSettings/Quality` and check `Realtime Reflection Probes`. Note that you may have different levels of quality settings between Editor and your build target.
 2. Enable `Enable Realtime Refections` from menu `Zappar/Editor/Open Universal AR Settings`. This will add a new layer `ZapparReflect` to your project.
-3. Right click on `ZapparCamera` in Hierarchy (Camera object containing `ZapparCamera` script) and select `Zappar/AddRealtimeReflectionProbe`.
+3. Create a new reflection probe object using `Zappar/Realtime Reflection Probe` menu option. 
 4. Adjust the `ZapparReflectionProbe` properties according to your project needs.
 
+![alt text](./Temp~/reflect.jpg "Realtime reflection probe")
 
 
 ## Advanced Usage

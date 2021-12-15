@@ -332,20 +332,19 @@ namespace Zappar.Editor
             }
         }
 
-        [MenuItem("GameObject/Zappar/Add Realtime Reflection Probe", false, 10)]
-        public static void CreateZapparReflectionProbe(MenuCommand menuCommand)
+        [MenuItem("Zappar/Realtime Reflection Probe", false, 34)]
+        public static void CreateZapparReflectionProbe()
         {
             var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
             if (!settings.EnableRealtimeReflections)
             {
-                Debug.Log("Please enable the realtime reflection from UAR settings! Zappar/Editor/OpenUARSettings");
+                Debug.Log("Please enable the realtime reflection from UAR settings! Zappar/Editor/Open Universal AR Settings");
                 return;
             }
-
-            GameObject parent = menuCommand.context as GameObject;
-            if(parent?.GetComponent<ZapparCamera>()==null)
+            ZapparCamera zCam = GameObject.FindObjectOfType<ZapparCamera>();
+            if (zCam==null)
             {
-                Debug.LogError("Can't find zappar camera componnet on parent");
+                Debug.LogError("Can't find zappar camera in scene!");
                 return;
             }
 

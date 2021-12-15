@@ -18,7 +18,7 @@ namespace Zappar
         private ZapparFaceTrackingAnchor m_faceTracker;
 
         public Mesh UnityMesh { get; protected set; } = null;
-        public bool HaveInitialisedFaceMesh { get; protected set; } = false;
+        public bool HaveInitializedFaceMesh { get; protected set; } = false;
 
         private float[] m_faceVertices = null;
         private float[] m_faceNormals = null;
@@ -42,6 +42,11 @@ namespace Zappar
             m_faceTracker.RegisterPipelineInitCallback(OnFaceTrackerPipelineInitialised, true);
 
             CreateMesh(true);
+        
+            if ( m_faceTracker.FaceTrackingTarget == null) return;
+
+            if (m_faceTracker.FaceTrackingTarget.HasInitialized && !m_hasInitialised)
+                OnFaceTrackerPipelineInitialised(m_faceTracker.FaceTrackingTarget.FaceTrackerPipeline.Value, m_faceTracker.FaceTrackingTarget.IsMirrored);
         }
 
         private void OnFaceTrackerPipelineInitialised(IntPtr pipeline, bool mirrored)
@@ -49,7 +54,7 @@ namespace Zappar
             m_isMirrored = mirrored;
 
             m_hasInitialised = true;
-            HaveInitialisedFaceMesh = false;
+            HaveInitializedFaceMesh = false;
 
             CreateMesh();
         }
@@ -127,15 +132,15 @@ namespace Zappar
             UnityMesh.vertices = Z.UpdateFaceMeshVerticesForUnity(m_faceVertices);
             UnityMesh.normals = Z.UpdateFaceMeshNormalsForUnity(m_faceNormals);
 
-            if (!HaveInitialisedFaceMesh)
+            if (!HaveInitializedFaceMesh)
             {
                 UnityMesh.triangles = Z.UpdateFaceMeshTrianglesForUnity(Z.FaceMeshIndices(FaceMeshPtr.Value));
                 UnityMesh.uv = Z.UpdateFaceMeshUVsForUnity(Z.FaceMeshUvs(FaceMeshPtr.Value));
-                HaveInitialisedFaceMesh = true;
+                HaveInitializedFaceMesh = true;
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!m_hasInitialised || !m_faceTracker.FaceIsVisible)
                 return;
@@ -143,7 +148,7 @@ namespace Zappar
             UpdateMeshData();
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             m_faceTracker.RegisterPipelineInitCallback(OnFaceTrackerPipelineInitialised, false);
             if (FaceMeshPtr != null && Application.isPlaying)
@@ -166,7 +171,7 @@ namespace Zappar
             UnityMesh = null;
             m_faceVertices = null;
             m_faceNormals = null;
-            HaveInitialisedFaceMesh = false;
+            HaveInitializedFaceMesh = false;
         }
     }
 }
