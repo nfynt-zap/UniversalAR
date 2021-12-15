@@ -124,7 +124,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!43 &176760052
+--- !u!43 &103058832
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -421,10 +421,34 @@ MonoBehaviour:
   FaceTrackingTarget: {fileID: 891601549}
   OnSeenEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2068417213}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   OnNotSeenEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2068417213}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   AnchorId: 0
   m_faceNumber: 0
 --- !u!4 &299912537
@@ -475,7 +499,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37677d5322c344b439d86a6630bd7a6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anchorOrigin: {fileID: 891601549}
+  AnchorOrigin: {fileID: 891601549}
   UseFrontFacingCamera: 1
   CameraAttitudeFromGyro: 0
   MirrorCamera: 1
@@ -779,7 +803,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1592442068}
-  m_Mesh: {fileID: 176760052}
+  m_Mesh: {fileID: 103058832}
 --- !u!1 &2053063952
 GameObject:
   m_ObjectHideFlags: 0

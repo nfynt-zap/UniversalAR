@@ -53,6 +53,13 @@ namespace Zappar
             m_camerModel = new float[] { 0, 0, 0, 0, 0, 0 };
         }
 
+        void Point(float x, float y)
+        {
+            GL.TexCoord2(x, y);
+            GL.Vertex3(x, y, -1);
+        }
+
+#if ZAPPAR_SRP
         private void Start()
         {
             if (ZapparCamera.Instance != null)
@@ -64,17 +71,7 @@ namespace Zappar
                 OnZapparCameraPaused(ZapparCamera.Instance.CameraSourcePaused);
                 OnZapparInitialized(ZapparCamera.Instance.GetPipeline);
             }
-        }
 
-        void Point(float x, float y)
-        {
-            GL.TexCoord2(x, y);
-            GL.Vertex3(x, y, -1);
-        }
-
-#if ZAPPAR_SRP
-        private void Start()
-        {
             RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
         }
 
