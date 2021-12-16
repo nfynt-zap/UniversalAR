@@ -59,7 +59,6 @@ namespace Zappar
             GL.Vertex3(x, y, -1);
         }
 
-#if ZAPPAR_SRP
         private void Start()
         {
             if (ZapparCamera.Instance != null)
@@ -71,9 +70,12 @@ namespace Zappar
                 OnZapparCameraPaused(ZapparCamera.Instance.CameraSourcePaused);
                 OnZapparInitialized(ZapparCamera.Instance.GetPipeline);
             }
-
+#if ZAPPAR_SRP
             RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+#endif
         }
+
+#if ZAPPAR_SRP
 
         private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
         {
