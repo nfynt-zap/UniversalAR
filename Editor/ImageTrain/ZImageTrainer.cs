@@ -300,13 +300,6 @@ namespace Zappar.Editor
 
             float trainTopRadius, trainBottomRadius, trainSideLength;
 
-            //float convertToMeterScale = 1f;
-            //if (s_myParams.PhysicalUnitType == 0) convertToMeterScale = -1f;   //px
-            //else if (s_myParams.PhysicalUnitType == 1) convertToMeterScale = 1f / 1000f;  //mm
-            //else if (s_myParams.PhysicalUnitType == 2) convertToMeterScale = 1f / 100f;  //cm
-            //else if (s_myParams.PhysicalUnitType == 3) convertToMeterScale = 1f / 39.3701f;  //inch
-            //else if (s_myParams.PhysicalUnitType == 4) convertToMeterScale = 1f;  //m
-
             s_myParams.PhysicalScaleFactor = (s_myParams.PhysicalUnitType == 0) ? -1f : (0.5f * s_myParams.PixelHeight * (1f / 39.3701f)) / s_myParams.DPI;
 
             if (s_myParams.CurvedImageTarget)
