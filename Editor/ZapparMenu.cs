@@ -422,8 +422,13 @@ namespace Zappar.Editor
                 {
                     Debug.Log("[UAR]: Finished importing: " + s_importRequest.Result?.packageId);
                     EditorApplication.update -= PackageProgress;
-                    s_importRequest = null;
-                    PackageImportSettings.RefreshPackage();
+                    if(EditorUtility.DisplayDialog("Zappar Notification", 
+                        "Package: " + s_importRequest.Result?.packageId + " added successfully.\nPlease check the Readme.md or import samples from package manager window for user guide.",
+                        "OK"))
+                    {
+                        PackageImportSettings.RefreshPackage();
+                        s_importRequest = null;
+                    }
                 }
             }
         }

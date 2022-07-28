@@ -196,7 +196,7 @@ Conical targets are slightly more complex than cylindrical targets, and require 
 
 Conical targets can either have a larger top or bottom radius. The outlines shown above represent the case where the top radius is larger than the bottom radius. In the unique case where either the top or bottom radius is 0 the conical target will be a cone. Again the training image must be adjusted to match (i.e. the inner circle in the image above wouldn't exist and the diagonal lines would meet in the middle).
 
-***Note: all physical units specified are converted to "odle coordinates" such that one unit is equal to half the height of the input image.***
+***Note: all physical units specified are converted to default coordinates such that one unit is equal to half the height of the input image.***
 
 ## Licensing
 

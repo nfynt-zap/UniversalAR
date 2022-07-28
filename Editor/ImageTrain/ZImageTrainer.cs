@@ -40,7 +40,7 @@ namespace Zappar.Editor
         public static GUIContent TopRadius = new GUIContent("Top radius", "Top radius, provided 1 unit equals half the height of image in default unit");
         public static GUIContent BottomRadius = new GUIContent("Bottom radius", "Bottom radius, provided 1 unit equals half the height of image in default unit");
         public static GUIContent SideLength = new GUIContent("Side length", "Side length of conical target, provided 1 unit equals half the height of image in default unit");
-        public static GUIContent InfoButton = new GUIContent(EditorGUIUtility.IconContent("console.infoicon.sml").image, "How to calculate training parameters?");
+        public static GUIContent InfoButton = new GUIContent(EditorGUIUtility.IconContent("console.infoicon.sml").image, "Click Me! To learn about curved training parameters.");
         public static Vector3[] RectanglePoly = new Vector3[] {
                             new Vector3(10, 10),
                             new Vector3(10, 80),
@@ -77,7 +77,7 @@ namespace Zappar.Editor
         {
             ZImageTrainer window = (ZImageTrainer)EditorWindow.GetWindow(typeof(ZImageTrainer));
             window.titleContent = new GUIContent() { text = "Zappar Image Trainer" };
-
+            window.minSize = new Vector2(400, 500);
             if (s_myParams == null)
             {
                 s_myParams = new ZImageTrainerParams();
