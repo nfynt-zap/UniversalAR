@@ -11,6 +11,7 @@ namespace Zappar.Editor
     public class BuildPostProcessor
     {
         public const string WebGLPermissionsTag = "ZAPPAR_PERMISSIONS_IMPLEMENTATION";
+        public const string WebGLCacheTag = "ZAPPAR_WEBGL_CACHING"; //Only supported on Unity 2020 and above
 
         [PostProcessBuild]
         public static void OnPostProcessBuild(BuildTarget target, string targetPath)
@@ -19,10 +20,36 @@ namespace Zappar.Editor
                 return;
 
 #if !UNITY_2020_1_OR_NEWER
-            string path = Path.Combine(targetPath, "Build/UnityLoader.js");
-            string text = File.ReadAllText(path);
-            text = text.Replace("UnityLoader.SystemInfo.mobile", "false");
-            File.WriteAllText(path, text);
+            if (!PlayerSettings.WebGL.nameFilesAsHashes)
+            {
+                string path = Path.Combine(targetPath, "Build/UnityLoader.js");
+                string text = File.ReadAllText(path);
+                text = text.Replace("UnityLoader.SystemInfo.mobile", "false");
+                File.WriteAllText(path, text);
+            }else{
+                //Find loader.js file
+                string[] files = Directory.GetFiles(Path.Combine(targetPath, "Build"), "*.js");
+                if (files.Length == 1)
+                {
+                    string text = File.ReadAllText(files[0]);
+                    text = text.Replace("UnityLoader.SystemInfo.mobile", "false");
+                    File.WriteAllText(files[0], text);
+                }
+                else
+                {
+                    Debug.LogWarning("Can't determine UnityLoader.js file under build directory! Replace the following string: <b>UnityLoader.SystemInfo.mobile</b> with <b>false</b> in UnityLoader.js (or FILEHASH.js) to suppress Unity mobile warning.");
+                }
+            }
+#endif
+            string indexFile = "";
+            string indexContent = "";
+#if UNITY_2020_1_OR_NEWER
+            indexFile = Path.Combine(targetPath, "index.html");
+            indexContent = File.ReadAllText(indexFile);
+            string cacheJS = "if (url.match(/\\.data/) || url.match(/\\.bundle/) || url.match(/\\.zpt/)) {\n             " +
+                                  (PlayerSettings.WebGL.nameFilesAsHashes ? "return \"immutable\";\n" : "return \"must-revalidate\";\n            ") +
+                              "}\n";
+            indexContent = indexContent.Replace(WebGLCacheTag, cacheJS);
 #endif
 
             var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
@@ -46,9 +73,10 @@ namespace Zappar.Editor
                     }
                 }
             }
-
-            string indexFile = Path.Combine(targetPath, "index.html");
-            string indexContent = File.ReadAllText(indexFile);
+            if (string.IsNullOrEmpty(indexFile))
+                indexFile = Path.Combine(targetPath, "index.html");
+            if (string.IsNullOrEmpty(indexContent))
+                indexContent = File.ReadAllText(indexFile);
             if (settings.PermissionRequestUI)
                 indexContent = indexContent.Replace(WebGLPermissionsTag, "window.zappar.permission_request_ui_promise().then(WaitForZCVLoad);");
             else

@@ -4,7 +4,21 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.1.0] - 2022-07-22
+## [3.2.0] - 2022-XX-XX
+### Added
+- Support for Unity silicon editor.
+- New menu option: `Zappar/Editor/New AR Scene &N`. Which creates a new scene with `ZapparCamera` without any skybox and flat lighting setup for scene.
+- Provided favicon.ico as part of WebGLTemplate to avoid 404 error on start in browsers.
+
+### Changed
+- Updated `ZapparBackgroundCamera` `ClearFlags` from Skybox to Nothing, for better mobile performance.
+- Zappar in-editor publishing menu now uses WebGL 2.0 graphics API on Unity version 2021 LTS and above.
+- Zappar in-editor publishing menu updates WebGL `Texture Compression` to `ETC2` in favor of mobile browsers.
+- Removed `Decompression Fallback` as default option from UAR WebGL publishing setting. Support for both `Brotli` and `Gzip` compressed builds are now fully supported from `Zapworks` dashboard and `zapworks-cli` version [2.0.4](https://www.npmjs.com/package/@zappar/zapworks-cli) and above.
+- Improved WebGL build caching by enabling `WebGL.nameFilesAsHashes` from publishing menu option, and caching zbin and zpt file types on Unity 2020 and above.
+
+
+## [3.1.0] - 2022-07-28
 ### Added
 - Cylindrical and conical image training and tracking target type.
 - New Zappar camera type of gyro (3DoF tracking) which only updates the virtual camera's attitude and optional backdrop of camera feed.
@@ -15,6 +29,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Zappar Instant Tracking to use new world tracking implementation.
 - Reduced the Zappar Camera near clipping plane to 0.01 from 0.3.
+
+### Known issues
+- No support for Unity silicon editor.
 
 
 ## [3.0.1] - 2022-01-04

@@ -4,19 +4,22 @@ using System.Collections;
 using UnityEngine.Rendering;
 using UnityEditor.PackageManager.Requests;
 using UnityEditor.PackageManager;
+using UnityEditor.SceneManagement;
 #if ZAPPAR_SRP
 using UnityEngine.Rendering.Universal;
 #endif
 
 namespace Zappar.Editor
 {
-    public class ZapparMenu : MonoBehaviour
+    internal class ZapparMenu : MonoBehaviour
     {
         private static ListRequest s_packageListRequest = null;
         private static AddRequest s_importRequest = null;
 
         public delegate void PackageListUpdated(ListRequest request);
         public static PackageListUpdated OnPackageListUpdated;
+
+        public static bool CreateNewARScene { get; set; }
 
 #region UtilitiesMenu
         [MenuItem("Zappar/Utilities/Full Head Model", false, 100)]
@@ -55,6 +58,15 @@ namespace Zappar.Editor
         public static void ZapparOpenUarSettings()
         {
             SettingsService.OpenProjectSettings("Project/ZapparUARSettings");
+        }
+
+        [MenuItem("Zappar/Editor/New AR Scene &N",false,16)]
+        public static void ZapparNewARScene()
+        {
+            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) { }
+            
+            CreateNewARScene = true;
+            EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects,NewSceneMode.Single);
         }
 
 #if ZAPPAR_SRP
