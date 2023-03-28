@@ -15,7 +15,7 @@ $zappar_support__postset: `
     _zappar_initialize = function() {
         if (typeof ZCV === 'undefined') {
             var scr = document.createElement("script");
-            scr.src="https://libs.zappar.com/zappar-cv/2.0.0/zappar-cv.js";
+            scr.src="https://libs.zappar.com/zappar-cv/2.0.1/zappar-cv.js";
             scr.addEventListener('load', function() {
                 zappar = ZCV.initialize();
                 hasInitialized = true;
@@ -32,7 +32,13 @@ $zappar_support__postset: `
 
         var zappar_native_callbacks = {
             process_gl: _zappar_pipeline_process_gl,
-            upload_gl: _zappar_pipeline_camera_frame_upload_gl
+            upload_gl: _zappar_pipeline_camera_frame_upload_gl,
+            face_mesh_vertices: _zappar_face_mesh_vertices,
+            face_mesh_vertices_size: _zappar_face_mesh_vertices_size,
+            face_mesh_normals: _zappar_face_mesh_normals,
+            face_mesh_normals_size: _zappar_face_mesh_normals_size,
+            face_mesh_uvs: _zappar_face_mesh_uvs,
+            face_mesh_uvs_size: _zappar_face_mesh_uvs_size
         };
 
         window.zappar_native_callbacks = zappar_native_callbacks;

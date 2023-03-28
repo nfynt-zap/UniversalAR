@@ -185,7 +185,8 @@ namespace Zappar.Editor
         {
             GameObject go = new GameObject("Zappar Camera", new[] { typeof(Camera), typeof(ZapparCamera) });
             GameObject child = new GameObject("Zappar Camera Background", new[] { typeof(Camera), typeof(ZapparCameraBackground) });
-            child.GetComponent<Camera>().clearFlags = CameraClearFlags.Nothing;
+            child.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
+            child.GetComponent<Camera>().backgroundColor = Color.black;
             child.GetComponent<Camera>().cullingMask = 0;
             child.tag = "MainCamera";
             child.transform.SetParent(go.transform);

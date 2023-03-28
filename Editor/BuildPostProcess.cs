@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using Zappar;
+#if UNITY_EDITOR && UNITY_IOS
+using UnityEditor.iOS.Xcode;
+#endif
 
 namespace Zappar.Editor
 {
@@ -16,9 +19,37 @@ namespace Zappar.Editor
         [PostProcessBuild]
         public static void OnPostProcessBuild(BuildTarget target, string targetPath)
         {
-            if (target != BuildTarget.WebGL)
-                return;
+            if (target == BuildTarget.iOS)
+                IOSPostProcessBuild(targetPath);
 
+            if (target == BuildTarget.WebGL)
+                WebGLPostProcessBuild(targetPath);
+
+        }
+
+        private static void IOSPostProcessBuild(string targetPath)
+        {
+#if UNITY_EDITOR && UNITY_IOS
+            string projectPath = PBXProject.GetPBXProjectPath(targetPath);
+            PBXProject project = new PBXProject();
+            project.ReadFromString(File.ReadAllText(projectPath));
+            string targetGUID = project.GetUnityFrameworkTargetGuid();
+
+            project.AddFrameworkToProject(targetGUID, "OpenGLES.framework", false);
+            project.AddFrameworkToProject(targetGUID, "Accelerate.framework", false);
+
+
+            //copy ZCV.Bundle to iOS project root
+            string srcDir = "Packages/com.zappar.uar/Plugins/iOS/ZCV.bundle";
+            string destDir = targetPath + "/ZCV.bundle";
+            Utils.ZUtils.DirectoryCopy(srcDir,destDir,true);
+
+            File.WriteAllText(projectPath, project.WriteToString());
+#endif
+        }
+
+        private static void WebGLPostProcessBuild(string targetPath)
+        {
 #if !UNITY_2020_1_OR_NEWER
             if (!PlayerSettings.WebGL.nameFilesAsHashes)
             {
@@ -60,11 +91,11 @@ namespace Zappar.Editor
                 return;
             }
 
-            if(settings.ExcludeZPTFromBuild)
+            if (settings.ExcludeZPTFromBuild)
             {
                 string zpt_dir = Path.Combine(targetPath, "StreamingAssets");
                 DirectoryInfo di = new DirectoryInfo(zpt_dir);
-                foreach(var file in di.EnumerateFiles())
+                foreach (var file in di.EnumerateFiles())
                 {
                     if (file.FullName.EndsWith(".zpt"))
                     {
@@ -83,5 +114,7 @@ namespace Zappar.Editor
                 indexContent = indexContent.Replace(WebGLPermissionsTag, "WaitForZCVLoad();");
             File.WriteAllText(indexFile, indexContent);
         }
+
+
     }
 }
