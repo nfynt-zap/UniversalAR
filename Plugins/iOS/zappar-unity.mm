@@ -14,8 +14,10 @@ static id<MTLDevice> s_device = 0;
 static IUnityInterfaces* s_interface = 0;
 static zappar_pipeline_t s_pipeline = 0;
 
-static std::map<zappar_face_mesh_t,std::pair<void*,int>> s_faceMeshVertexBuffers; //vertex buffer handle and count for each face mesh pipeline
-
+static std::map<zappar_face_mesh_t,std::pair<void*,int>> s_faceMeshUnityVertexBuffers; //vertex buffer handle and count for each face mesh pipeline
+#if !ZAPPAR_METAL_SUPPORT && (TARGET_OS_IOS || TARGET_OS_IPHONE)
+static std::map<zappar_face_mesh_t,void*> s_mVertexBuffers; //cpu bound buffer only required for GLES
+#endif
 // Used here for updating Unity face mesh vertex buffer natively. Do not change the layout!
 struct MeshVertex
 {
@@ -87,25 +89,36 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_set_unity_face
         NSLog(@"Invalid vertex buffer handle or vertexCount, in zappar_set_mesh_buffers_from_unity in face mesh pipeline!");
         return;
     }
-    s_faceMeshVertexBuffers[faceMesh] = std::make_pair(vertexBufferHandle,vertexCount);
+    s_faceMeshUnityVertexBuffers[faceMesh] = std::make_pair(vertexBufferHandle,vertexCount);
+#if !ZAPPAR_METAL_SUPPORT && (TARGET_OS_IOS || TARGET_OS_IPHONE)
+    if(s_mVertexBuffers.find(faceMesh)!=s_mVertexBuffers.end()) free(s_mVertexBuffers.find(faceMesh)->second);
+        s_mVertexBuffers[faceMesh] = malloc(sizeof(MeshVertex)*vertexCount);
+#endif
 }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_clear_unity_face_mesh_buffer(zappar_face_mesh_t faceMesh)
 {
-    auto it = s_faceMeshVertexBuffers.find(faceMesh);
-    if(it==s_faceMeshVertexBuffers.end()) return;
-    s_faceMeshVertexBuffers.erase(it);
+    auto it = s_faceMeshUnityVertexBuffers.find(faceMesh);
+    if(it!=s_faceMeshUnityVertexBuffers.end())
+        s_faceMeshUnityVertexBuffers.erase(it);
+#if !ZAPPAR_METAL_SUPPORT
+    auto it2 = s_mVertexBuffers.find(faceMesh);
+    if(it2!=s_mVertexBuffers.end()){
+        free(it2->second);
+        s_mVertexBuffers.erase(it2);
+    }
+#endif
 }
 
 extern "C" int UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_get_unity_face_mesh_buffers_count(){
-    return s_faceMeshVertexBuffers.size();
+    return s_faceMeshUnityVertexBuffers.size();
 }
 
 #ifdef ZAPPAR_METAL_SUPPORT
 static void UNITY_INTERFACE_API OnNativeMetalFaceMeshEvent(int eventID)
 {
     if (s_device != 0 && eventID==1011) {
-        for(auto& fmb : s_faceMeshVertexBuffers) {
+        for(auto& fmb : s_faceMeshUnityVertexBuffers) {
             int vertexCount = fmb.second.second;
             void* unityBufferHandle = fmb.second.first;
             if(!unityBufferHandle) continue;
@@ -132,7 +145,7 @@ static void UNITY_INTERFACE_API OnNativeMetalFaceMeshEvent(int eventID)
                 unityVert.uv[1] = zFaceUVs[2*i+1];
                 bufferPtr += vertexStride;
             }
-#if !(TARGET_OS_IOS) || !(TARGET_OS_IPHONE)
+#if !(TARGET_OS_IOS || TARGET_OS_IPHONE)
 	        [buf didModifyRange:NSMakeRange(0, buf.length)];
 #endif
         }
@@ -147,7 +160,10 @@ extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar
 static void UNITY_INTERFACE_API OnNativeGLFaceMeshEvent(int eventID){
     if(s_interface==nullptr || eventID!=1011) return;
     if(s_device!=nullptr){ NSLog(@"Incorrect GL api being called when metal was selected"); return; }
-    for(auto& fmb : s_faceMeshVertexBuffers) { 
+#if ZAPPAR_METAL_SUPPORT
+    return;
+#else
+    for(auto& fmb : s_faceMeshUnityVertexBuffers) { 
         int vertexCount = fmb.second.second;
         void* unityBufferHandle = fmb.second.first;
         if(!unityBufferHandle) continue;
@@ -156,7 +172,7 @@ static void UNITY_INTERFACE_API OnNativeGLFaceMeshEvent(int eventID){
         GLint bufferSize = 0;
         glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
 #if TARGET_OS_IOS || TARGET_OS_IPHONE
-        void* mapped = malloc(bufferSize);
+        void* mapped = s_mVertexBuffers[fmb.first]; //malloc(bufferSize);
 #else
         void* mapped = glMapBuffer(GL_ARRAY_BUFFER,GL_WRITE_ONLY);
 #endif
@@ -181,12 +197,13 @@ static void UNITY_INTERFACE_API OnNativeGLFaceMeshEvent(int eventID){
         }
 #if TARGET_OS_IOS || TARGET_OS_IPHONE
         glBufferSubData(GL_ARRAY_BUFFER,0,bufferSize,mapped);
-        free(mapped);
+       //free(mapped);
 #else
         glBindBuffer(GL_ARRAY_BUFFER,(GLuint)(size_t)unityBufferHandle);
         glUnmapBuffer(GL_ARRAY_BUFFER);
 #endif
     }
+#endif
 }
 extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_update_face_mesh_buffer_callback_native_gl()
 {

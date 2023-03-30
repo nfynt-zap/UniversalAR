@@ -21,8 +21,6 @@ namespace Zappar
         public Mesh UnityMesh { get; protected set; } = null;
         public bool HaveInitializedFaceMesh { get; protected set; } = false;
         
-        private float[] m_faceVertices = null;
-        private float[] m_faceNormals = null;
         private bool m_isMirrored = false;
         
         public abstract void UpdateMaterial();
@@ -127,16 +125,8 @@ namespace Zappar
 
             Z.FaceMeshUpdate(FaceMeshPtr.Value, m_faceTracker.Identity, m_faceTracker.Expression, m_isMirrored);
 
-            if (m_faceVertices == null || m_faceVertices.Length == 0)
-            {
-                m_faceVertices = new float[Z.FaceMeshVerticesSize(FaceMeshPtr.Value)];
-                m_faceNormals = new float[Z.FaceMeshNormalsSize(FaceMeshPtr.Value)];
-            }
-
-            if (m_faceVertices.Length == 0) return;
-
-            //native rendering event will take care of updating the mesh
-            
+            if (HaveInitializedFaceMesh || Z.FaceMeshVerticesSize(FaceMeshPtr.Value) == 0) return;
+                        
             if (!HaveInitializedFaceMesh)
             {
                 // Do not change this layout!
@@ -147,8 +137,9 @@ namespace Zappar
                         //new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.Float32, 4),
                         new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2)
                     };
-                UnityMesh.SetVertexBufferParams(m_faceVertices.Length, desiredVertexLayout);
-
+                UnityMesh.SetVertexBufferParams(Z.FaceMeshVerticesSize(FaceMeshPtr.Value)/3, desiredVertexLayout);
+                float[] m_faceVertices = new float[Z.FaceMeshVerticesSize(FaceMeshPtr.Value)];
+                float[] m_faceNormals = new float[Z.FaceMeshNormalsSize(FaceMeshPtr.Value)];
                 Z.UpdateFaceMeshVertices(FaceMeshPtr.Value, ref m_faceVertices);
                 Z.UpdateFaceMeshNormals(FaceMeshPtr.Value, ref m_faceNormals);
                 UnityMesh.vertices = Z.UpdateFaceMeshVerticesForUnity(m_faceVertices);
@@ -201,8 +192,6 @@ namespace Zappar
             Destroy(UnityMesh);
 #endif
             UnityMesh = null;
-            m_faceVertices = null;
-            m_faceNormals = null;
             HaveInitializedFaceMesh = false;
         }
     }

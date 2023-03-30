@@ -70,7 +70,8 @@
     
     // ------------ Face Mesh Buffer Native Update ------------ // 
 
-    static std::map<zappar_face_mesh_t,std::pair<void*,int>> s_faceMeshVertexBuffers; //vertex buffer handle and count for each face mesh pipeline
+    static std::map<zappar_face_mesh_t,std::pair<void*,int>> s_faceMeshUnityVertexBuffers; //vertex buffer handle and count for each face mesh pipeline
+    static std::map<zappar_face_mesh_t,void*> s_mVertexBuffers;
     // Used here for updating Unity face mesh vertex buffer natively
     struct MeshVertex
     {
@@ -90,20 +91,28 @@
             log_string("Invalid vertex buffer handle or vertexCount, in zappar_set_mesh_buffers_from_unity in face mesh pipeline!");
             return;
         }
-        s_faceMeshVertexBuffers[faceMesh] = std::make_pair(vertexBufferHandle,vertexCount);
+        s_faceMeshUnityVertexBuffers[faceMesh] = std::make_pair(vertexBufferHandle,vertexCount);
+        if(s_mVertexBuffers.find(faceMesh)!=s_mVertexBuffers.end()) 
+            free(s_mVertexBuffers.find(faceMesh)->second);
+        s_mVertexBuffers[faceMesh] = malloc(sizeof(MeshVertex)*vertexCount);
         //log_string(("Saved face mesh for update: " + std::to_string((int)faceMesh)).c_str());
     }
 
     extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_clear_unity_face_mesh_buffer(zappar_face_mesh_t faceMesh)
     {
-        auto it = s_faceMeshVertexBuffers.find(faceMesh);
-        if(it==s_faceMeshVertexBuffers.end()) return;
-        s_faceMeshVertexBuffers.erase(it);
+        auto it = s_faceMeshUnityVertexBuffers.find(faceMesh);
+        if(it!=s_faceMeshUnityVertexBuffers.end())
+            s_faceMeshUnityVertexBuffers.erase(it);
+        auto it2 = s_mVertexBuffers.find(faceMesh);
+        if(it2!=s_mVertexBuffers.end()){
+            free(it2->second);
+            s_mVertexBuffers.erase(it2);
+        }
         //log_string(("Cleared face mesh for update: " + std::to_string((int)faceMesh)).c_str());
     }
 
     extern "C" int UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_get_unity_face_mesh_buffers_count(){
-        return s_faceMeshVertexBuffers.size();
+        return s_faceMeshUnityVertexBuffers.size();
     }
 
     EM_JS(const float*, zappar_issue_js_plugin_face_mesh_vertices, (void* o), {
@@ -128,34 +137,18 @@
     static void UNITY_INTERFACE_API OnNativeGLFaceMeshEvent(int eventID){
         if(eventID!=1011) { log_string("Invalid event id"); return;}
         
-        // if(glMapBufferOES==nullptr)
-        // glMapBufferOES = (PFNGLMAPBUFFEROESPROC)eglGetProcAddress("glMapBufferOES");
-        // if(glUnmapBufferOES==nullptr)
-		// glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress("glUnmapBufferOES");
-
-        for(auto& fmb : s_faceMeshVertexBuffers) { 
+        for(auto& fmb : s_faceMeshUnityVertexBuffers) { 
             int vertexCount = fmb.second.second;
-            //int vCount = zappar_face_mesh_vertices_size(fmb.first);
-            //Debug::Log("GL ",vertexCount," ",vCount);
-            //assert(vCount==3*vertexCount);
-
             void* unityBufferHandle = fmb.second.first;
             if(!unityBufferHandle) continue;
+
             glBindBuffer(GL_ARRAY_BUFFER,(GLuint)(size_t)unityBufferHandle);
             GLint bufferSize = 0;
             glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
-            
-            //void* mapped = glMapBuffer(GL_ARRAY_BUFFER,GL_WRITE_ONLY); //Not supported on GLES2
-            //void* mapped = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-            void* mapped = malloc(bufferSize);
-
-            //Modify vertex buffer
-            if(!mapped) { log_string("failed to malloc buffer memory!");continue;}
+            void* mapped = s_mVertexBuffers[fmb.first]; //malloc(bufferSize);
+            if(!mapped) { log_string("No cpu bound vertex buffer found!");continue;}
 
             int vertexStride = int(bufferSize / vertexCount);
-            if(sizeof(MeshVertex)*vertexCount!=bufferSize) 
-                log_string(("vertex buffer size mismatch! BufferSize: "+std::to_string(bufferSize)+
-                " VerticesCount: "+std::to_string(vertexCount)+" MeshVertexSize: "+std::to_string(sizeof(MeshVertex))).c_str());
             char* bufferPtr = (char*)mapped;
             //copy vertices and normals of face_mesh from zcv to unity_mesh
             const float* zFaceVerts = zappar_issue_js_plugin_face_mesh_vertices(fmb.first);
@@ -173,25 +166,12 @@
                 unityVert.uv[1] = zFaceUVs[2*i+1];
                 bufferPtr += vertexStride;
             }
-            //log_string("updating vbo SubData");
             //bufferPtr -= bufferSize; //vertexCount * vertexStride
             glBufferSubData(GL_ARRAY_BUFFER,0,bufferSize,mapped);
-            //delete bufferPtr;
-            free(mapped);
-            // glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*zFaceVertsSize, zFaceVerts);
-            // glBufferSubData(GL_ARRAY_BUFFER, sizeof(float)*zFaceVertsSize, sizeof(float)*zFaceNormsSize, zFaceNorms);
-            // glBufferSubData(GL_ARRAY_BUFFER, sizeof(float)*(zFaceVertsSize + zFaceNormsSize), sizeof(float)*zFaceUVsSize, zFaceUVs);
-            // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);  
-            // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(sizeof(float)*zFaceVertsSize));  
-            // glVertexAttribPointer(
-            //   2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(sizeof(float)*(zFaceVertsSize + zFaceNormsSize))); 
-
-            //Close vertex buffer modification
-            //glBindBuffer(GL_ARRAY_BUFFER,(GLuint)(size_t)unityBufferHandle);
-            //glUnmapBuffer(GL_ARRAY_BUFFER);
-            //glUnmapBufferOES(GL_ARRAY_BUFFER);
+            //free(mapped);
         }
     }
+
     extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_update_face_mesh_buffer_callback_native_gl()
     {
         return OnNativeGLFaceMeshEvent;

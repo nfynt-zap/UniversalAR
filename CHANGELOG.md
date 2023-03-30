@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [3.2.0] - 2022-XX-XX
 ### Added
 - Support for Unity silicon editor.
-- New menu option: `Zappar/Editor/New AR Scene &N`. Which creates a new scene with `ZapparCamera` without any skybox and flat lighting setup for scene.
+- New menu option: `Zappar/Editor/New AR Scene &N`. Which creates a new scene with `ZapparCamera` without any skybox and flat lighting setup for the scene.
 - Provided favicon.ico as part of WebGLTemplate to avoid 404 error on start in browsers.
 
 ### Changed
@@ -16,13 +16,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated `ZapparBackgroundCamera` `ClearFlags` from Skybox to SolidColor, for better mobile performance.
 - Zappar in-editor publishing menu now uses WebGL 2.0 graphics API on Unity version 2021 LTS and above.
 - Zappar in-editor publishing menu updates WebGL `Texture Compression` to `ETC2` in favor of mobile browsers.
-- Removed `Decompression Fallback` as default option from UAR WebGL publishing setting. Support for both `Brotli` and `Gzip` compressed builds are now fully supported from `Zapworks` [dashboard](https://my.zap.works/) and `zapworks-cli` version [2.0.4](https://www.npmjs.com/package/@zappar/zapworks-cli) and above.
-- Improved WebGL build caching by enabling `WebGL.nameFilesAsHashes` from publishing menu option, and caching zbin and zpt file types on Unity 2020 and above.
-- Auto link frameworks (`Accelerate` and `OpenGLES`) to Unity build Xcode project.
+- Removed `Decompression Fallback` as the default option from UAR WebGL publishing setting. Support for both `Brotli` and `Gzip` compressed builds are now fully supported from `Zapworks` [dashboard](https://my.zap.works/) and `zapworks-cli` version [2.0.4](https://www.npmjs.com/package/@zappar/zapworks-cli) and above.
+- Improved WebGL build caching by enabling `WebGL.nameFilesAsHashes` from the publishing menu option, and caching zbin and zpt file types on Unity 2020 and above.
+- Auto link required frameworks (`Accelerate` and `OpenGLES`) in Unity built iOS Xcode project.
 
 ### Known issues
-- Selecting OpenGL graphics API for windows standalone crashes the Editor. Default graphics API of Direct3D11 should work fine.
-- Color space mismatch between Unity and ZCV resulting in darker camera texture with Metal API on MacOS and iOS native. A temporary fix is provided in thread [here](https://github.com/zappar-xr/universal-ar-unity/issues/11).
+- Selecting OpenGL graphics API for windows standalone crashes the Editor. The default graphics API of Direct3D11 should work fine.
+- Color space mismatch between Unity and ZCV resulting in darker camera texture with Metal API on MacOS and iOS native. A temporary fix is provided in the thread [here](https://github.com/zappar-xr/universal-ar-unity/issues/11).
 
 
 
