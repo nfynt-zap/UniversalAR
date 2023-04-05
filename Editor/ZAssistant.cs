@@ -223,7 +223,7 @@ namespace Zappar.Editor
             GameObject go = new GameObject("Zappar Face Tracking Anchor", new[] { typeof(ZapparFaceTrackingAnchor) });
             GameObject child = GetZapparFullHeadModel();
             child.transform.SetParent(go.transform);
-            child = GetZapparFullHeadDepthMask();
+            child = GetZapparFaceDepthMask();
             child.transform.SetParent(go.transform);
             return go;
         }
@@ -273,7 +273,7 @@ namespace Zappar.Editor
             return go;
         }
 
-        public static GameObject GetZapparFullHeadDepthMask()
+        public static GameObject GetZapparFaceDepthMask()
         {
             GameObject go = new GameObject("Zappar Full Head Depth Mask", new[] {typeof(MeshFilter),
             typeof(MeshRenderer),

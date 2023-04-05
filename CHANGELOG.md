@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [3.2.0] - 2022-XX-XX
+## [3.2.0] - 2023-04-05
 ### Added
 - Support for Unity silicon editor.
 - New menu option: `Zappar/Editor/New AR Scene &N`. Which creates a new scene with `ZapparCamera` without any skybox and flat lighting setup for the scene.
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed `Decompression Fallback` as the default option from UAR WebGL publishing setting. Support for both `Brotli` and `Gzip` compressed builds are now fully supported from `Zapworks` [dashboard](https://my.zap.works/) and `zapworks-cli` version [2.0.4](https://www.npmjs.com/package/@zappar/zapworks-cli) and above.
 - Improved WebGL build caching by enabling `WebGL.nameFilesAsHashes` from the publishing menu option, and caching zbin and zpt file types on Unity 2020 and above.
 - Auto link required frameworks (`Accelerate` and `OpenGLES`) in Unity built iOS Xcode project.
+- Moved the menu option `Zappar/Utilities/Full Head Depth Mask` to `Zappar/Face Tracker/Face Depth Mask`.
 
 ### Known issues
 - Selecting OpenGL graphics API for windows standalone crashes the Editor. The default graphics API of Direct3D11 should work fine.

@@ -30,14 +30,6 @@ namespace Zappar.Editor
             Selection.activeGameObject = head;
         }
 
-        [MenuItem("Zappar/Utilities/Full Head Depth Mask", false, 100)]
-        public static void ZapparCreateFullHeadDepthMask()
-        {
-            GameObject head = ZAssistant.GetZapparFullHeadDepthMask();
-            Undo.RegisterCreatedObjectUndo(head, "New depth mask");
-            Selection.activeGameObject = head;
-        }
-
         [MenuItem("Zappar/Utilities/Documentation", false, 120)]
         public static void ZapparOpenDocumentation()
         {
@@ -272,6 +264,14 @@ namespace Zappar.Editor
             GameObject go = ZAssistant.GetZapparFaceLandmark();
             Undo.RegisterCreatedObjectUndo(go, "New face landmark");
             Selection.activeGameObject = go;
+        }
+
+        [MenuItem("Zappar/Face Tracker/Face Depth Mask", false, 35)]
+        public static void ZapparCreateFaceDepthMask()
+        {
+            GameObject head = ZAssistant.GetZapparFaceDepthMask();
+            Undo.RegisterCreatedObjectUndo(head, "New depth mask");
+            Selection.activeGameObject = head;
         }
 
         #endregion
