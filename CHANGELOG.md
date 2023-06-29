@@ -4,6 +4,21 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.2.3] - 2023-06-30
+### Fixed
+- Some fixes and improvements for curved surface tracking.
+
+
+## [3.2.2] - 2023-06-02
+### Fixed
+- WebGL build error on Unity 2019 due to emscripten optimization and missing C++11 std support.
+
+
+## [3.2.1] - 2023-05-31
+### Fixed
+- Package import error on UnityEditor version 2020.x for unsupported webGLBuildSubtarget API.
+- Safari 16.4 screen orientation fix for upside-down screen in landscape mode.
+
 
 ## [3.2.0] - 2023-04-05
 ### Added
@@ -24,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Known issues
 - Selecting OpenGL graphics API for windows standalone crashes the Editor. The default graphics API of Direct3D11 should work fine.
 - Color space mismatch between Unity and ZCV resulting in darker camera texture with Metal API on MacOS and iOS native. A temporary fix is provided in the thread [here](https://github.com/zappar-xr/universal-ar-unity/issues/11).
+- Package import error on UnityEditor version 2020.x for unsupported webGLBuildSubtarget API.
 
 
 
