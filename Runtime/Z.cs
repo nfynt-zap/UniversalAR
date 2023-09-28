@@ -84,6 +84,13 @@ public class Z
         FRAME_PIXEL_FORMAT_Y = 7
     }
 
+    public enum WorldTrackerState : byte
+    {
+        WORLD_TRACKER_QUALITY_INITIALIZING = 0,
+        WORLD_TRACKER_QUALITY_GOOD = 1,
+        WORLD_TRACKER_QUALITY_ORIENTATION_ONLY = 2
+    }
+
 #if UNITY_EDITOR_OSX || UNITY_EDITOR_WIN
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -242,9 +249,17 @@ public class Z
     [DllImport(Config.PluginName)]
     private static extern void zappar_pipeline_motion_accelerometer_submit(IntPtr o, double time, float x, float y, float z);
     [DllImport(Config.PluginName)]
+    private static extern void zappar_pipeline_motion_accelerometer_with_gravity_submit_int(IntPtr o, double time, double interval, float x, float y, float z);
+    [DllImport(Config.PluginName)]
+    private static extern void zappar_pipeline_motion_accelerometer_without_gravity_submit_int(IntPtr o, double time, double interval, float x, float y, float z);
+    [DllImport(Config.PluginName)]
     private static extern void zappar_pipeline_motion_rotation_rate_submit(IntPtr o, double time, float x, float y, float z);
     [DllImport(Config.PluginName)]
+    private static extern void zappar_pipeline_motion_rotation_rate_submit_int(IntPtr o, double time, double interval, float x, float y, float z);
+    [DllImport(Config.PluginName)]
     private static extern void zappar_pipeline_motion_attitude_submit(IntPtr o, double time, float x, float y, float z);
+    [DllImport(Config.PluginName)]
+    private static extern void zappar_pipeline_motion_attitude_submit_int(IntPtr o, double time, double interval, float x, float y, float z);
     [DllImport(Config.PluginName)]
     private static extern void zappar_pipeline_motion_attitude_matrix_submit(IntPtr o, float[] mat);
     [DllImport(Config.PluginName)]
@@ -477,6 +492,45 @@ public class Z
     private static extern void zappar_instant_world_tracker_anchor_pose_set_from_camera_offset(IntPtr o, float x, float y, float z, uint orientation);
     
 
+        [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_create(IntPtr pipeline);
+        [DllImport(Config.PluginName)]
+    private static extern void zappar_world_tracker_destroy(IntPtr o);
+
+        [DllImport(Config.PluginName)]
+    private static extern int zappar_world_tracker_enabled(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern void zappar_world_tracker_enabled_set(IntPtr o, int enabled);
+    [DllImport(Config.PluginName)]
+    private static extern int zappar_world_tracker_quality(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern int zappar_world_tracker_plane_count(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_plane_pose_raw(IntPtr o, int indx);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_plane_pose_camera_relative(IntPtr o, int indx, int mirror);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_plane_pose(IntPtr o, int indx, float[] camera_pose, int mirror);
+    [DllImport(Config.PluginName)]
+    private static extern int zappar_world_tracker_world_anchor_valid(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_world_anchor_pose_raw(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_world_anchor_pose_camera_relative(IntPtr o, int mirror);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_world_anchor_pose(IntPtr o, float[] camera_pose, int mirror);
+    [DllImport(Config.PluginName)]
+    private static extern int zappar_world_tracker_ground_anchor_valid(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_ground_anchor_pose_raw(IntPtr o);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_ground_anchor_pose_camera_relative(IntPtr o, int mirror);
+    [DllImport(Config.PluginName)]
+    private static extern IntPtr zappar_world_tracker_ground_anchor_pose(IntPtr o, float[] camera_pose, int mirror);
+    [DllImport(Config.PluginName)]
+    private static extern void zappar_world_tracker_reset(IntPtr o);
+    
+
 // END AUTOGEN
 #pragma warning disable 0414
     private static bool haveSetApplicationContext = false;
@@ -653,7 +707,7 @@ public class Z
         {
             if (!m_texturePool.TryGetValue(ptr, out texture))
             {
-                texture = Texture2D.CreateExternalTexture(4, 4, TextureFormat.ARGB32, false, false, ptr);
+                texture = Texture2D.CreateExternalTexture(4, 4, TextureFormat.ARGB32, false,  QualitySettings.activeColorSpace==ColorSpace.Linear, ptr);
                 m_texturePool.Add(ptr, texture);
             }
         }
@@ -852,7 +906,11 @@ public class Z
 	public static string CameraDefaultDeviceId(bool userFacing) {
         
         IntPtr ret = zappar_camera_default_device_id(userFacing ? 1 : 0);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static int CameraCount() {
         
@@ -862,12 +920,20 @@ public class Z
 	public static string CameraId(int indx) {
         
         IntPtr ret = zappar_camera_id(indx);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static string CameraName(int indx) {
         
         IntPtr ret = zappar_camera_name(indx);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static bool CameraUserFacing(int indx) {
         
@@ -1123,6 +1189,26 @@ public class Z
         zappar_pipeline_motion_accelerometer_submit(o, time, x, y, z);
         
     }
+	public static void PipelineMotionAccelerometerWithGravitySubmitInt(IntPtr o, double time, double interval, float x, float y, float z) {
+        
+	
+	
+	
+	
+	
+        zappar_pipeline_motion_accelerometer_with_gravity_submit_int(o, time, interval, x, y, z);
+        
+    }
+	public static void PipelineMotionAccelerometerWithoutGravitySubmitInt(IntPtr o, double time, double interval, float x, float y, float z) {
+        
+	
+	
+	
+	
+	
+        zappar_pipeline_motion_accelerometer_without_gravity_submit_int(o, time, interval, x, y, z);
+        
+    }
 	public static void PipelineMotionRotationRateSubmit(IntPtr o, double time, float x, float y, float z) {
         
 	
@@ -1132,6 +1218,16 @@ public class Z
         zappar_pipeline_motion_rotation_rate_submit(o, time, x, y, z);
         
     }
+	public static void PipelineMotionRotationRateSubmitInt(IntPtr o, double time, double interval, float x, float y, float z) {
+        
+	
+	
+	
+	
+	
+        zappar_pipeline_motion_rotation_rate_submit_int(o, time, interval, x, y, z);
+        
+    }
 	public static void PipelineMotionAttitudeSubmit(IntPtr o, double time, float x, float y, float z) {
         
 	
@@ -1139,6 +1235,16 @@ public class Z
 	
 	
         zappar_pipeline_motion_attitude_submit(o, time, x, y, z);
+        
+    }
+	public static void PipelineMotionAttitudeSubmitInt(IntPtr o, double time, double interval, float x, float y, float z) {
+        
+	
+	
+	
+	
+	
+        zappar_pipeline_motion_attitude_submit_int(o, time, interval, x, y, z);
         
     }
 	public static void PipelineMotionAttitudeMatrixSubmit(IntPtr o, Matrix4x4 mat) {
@@ -1282,7 +1388,11 @@ public class Z
         
 	
         IntPtr ret = zappar_image_tracker_target_preview_compressed_mimetype(o, indx);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static byte[] ImageTrackerTargetPreviewRgba(IntPtr o, int indx) {
         
@@ -1397,7 +1507,11 @@ public class Z
         
 	
         IntPtr ret = zappar_image_tracker_anchor_id(o, indx);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static Matrix4x4 ImageTrackerAnchorPoseRaw(IntPtr o, int indx) {
         
@@ -1488,7 +1602,11 @@ public class Z
         
 	
         IntPtr ret = zappar_face_tracker_anchor_id(o, indx);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static Matrix4x4 FaceTrackerAnchorPoseRaw(IntPtr o, int indx) {
         
@@ -1690,7 +1808,11 @@ public class Z
         
 	
         IntPtr ret = zappar_barcode_finder_found_text(o, indx);
-        return Marshal.PtrToStringAnsi(ret);
+        #if UNITY_2021_3_OR_NEWER
+            return Marshal.PtrToStringUTF8(ret);
+            #else
+            return Marshal.PtrToStringAnsi(ret);
+            #endif
     }
 	public static BarcodeFormat BarcodeFinderFoundFormat(IntPtr o, int indx) {
         
@@ -1777,6 +1899,162 @@ public class Z
         zappar_instant_world_tracker_anchor_pose_set_from_camera_offset(o, x, y, z, (uint)orientation);
         
     }
+	public static bool WorldTrackerEnabled(IntPtr o) {
+        
+        int ret = zappar_world_tracker_enabled(o);
+        return (ret == 1) ? true : false;
+    }
+	public static void WorldTrackerEnabledSet(IntPtr o, bool enabled) {
+        
+	
+        zappar_world_tracker_enabled_set(o, enabled ? 1 : 0);
+        
+    }
+	public static int WorldTrackerQuality(IntPtr o) {
+        
+        int ret = zappar_world_tracker_quality(o);
+        return ret;
+    }
+	public static int WorldTrackerPlaneCount(IntPtr o) {
+        
+        int ret = zappar_world_tracker_plane_count(o);
+        return ret;
+    }
+	public static Matrix4x4 WorldTrackerPlanePoseRaw(IntPtr o, int indx) {
+        
+	
+        IntPtr ret = zappar_world_tracker_plane_pose_raw(o, indx);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static Matrix4x4 WorldTrackerPlanePoseCameraRelative(IntPtr o, int indx, bool mirror) {
+        
+	
+	
+        IntPtr ret = zappar_world_tracker_plane_pose_camera_relative(o, indx, mirror ? 1 : 0);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static Matrix4x4 WorldTrackerPlanePose(IntPtr o, int indx, Matrix4x4 camera_pose, bool mirror) {
+        
+	
+	float[] arg_camera_pose = new float[16];
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                arg_camera_pose[i * 4 + k] = camera_pose[k, i];
+	
+        IntPtr ret = zappar_world_tracker_plane_pose(o, indx, arg_camera_pose, mirror ? 1 : 0);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static bool WorldTrackerWorldAnchorValid(IntPtr o) {
+        
+        int ret = zappar_world_tracker_world_anchor_valid(o);
+        return (ret == 1) ? true : false;
+    }
+	public static Matrix4x4 WorldTrackerWorldAnchorPoseRaw(IntPtr o) {
+        
+        IntPtr ret = zappar_world_tracker_world_anchor_pose_raw(o);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static Matrix4x4 WorldTrackerWorldAnchorPoseCameraRelative(IntPtr o, bool mirror) {
+        
+	
+        IntPtr ret = zappar_world_tracker_world_anchor_pose_camera_relative(o, mirror ? 1 : 0);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static Matrix4x4 WorldTrackerWorldAnchorPose(IntPtr o, Matrix4x4 camera_pose, bool mirror) {
+        
+	float[] arg_camera_pose = new float[16];
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                arg_camera_pose[i * 4 + k] = camera_pose[k, i];
+	
+        IntPtr ret = zappar_world_tracker_world_anchor_pose(o, arg_camera_pose, mirror ? 1 : 0);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static bool WorldTrackerGroundAnchorValid(IntPtr o) {
+        
+        int ret = zappar_world_tracker_ground_anchor_valid(o);
+        return (ret == 1) ? true : false;
+    }
+	public static Matrix4x4 WorldTrackerGroundAnchorPoseRaw(IntPtr o) {
+        
+        IntPtr ret = zappar_world_tracker_ground_anchor_pose_raw(o);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static Matrix4x4 WorldTrackerGroundAnchorPoseCameraRelative(IntPtr o, bool mirror) {
+        
+	
+        IntPtr ret = zappar_world_tracker_ground_anchor_pose_camera_relative(o, mirror ? 1 : 0);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static Matrix4x4 WorldTrackerGroundAnchorPose(IntPtr o, Matrix4x4 camera_pose, bool mirror) {
+        
+	float[] arg_camera_pose = new float[16];
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                arg_camera_pose[i * 4 + k] = camera_pose[k, i];
+	
+        IntPtr ret = zappar_world_tracker_ground_anchor_pose(o, arg_camera_pose, mirror ? 1 : 0);
+        float[] retFloats = new float[16];
+        Marshal.Copy(ret, retFloats, 0, 16);
+        Matrix4x4 retMatrix = new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
+                retMatrix[k, i] = retFloats[i * 4 + k];
+        return retMatrix;
+    }
+	public static void WorldTrackerReset(IntPtr o) {
+        
+        zappar_world_tracker_reset(o);
+        
+    }
     public static IntPtr PipelineCreate() 
     {
         return zappar_pipeline_create();
@@ -1813,6 +2091,10 @@ public class Z
     {
         return zappar_instant_world_tracker_create(pipeline);
     }
+	public static IntPtr WorldTrackerCreate(IntPtr pipeline) 
+    {
+        return zappar_world_tracker_create(pipeline);
+    }
     public static void PipelineDestroy(IntPtr o)
     {
         zappar_pipeline_destroy(o);
@@ -1848,6 +2130,10 @@ public class Z
 	public static void InstantWorldTrackerDestroy(IntPtr o)
     {
         zappar_instant_world_tracker_destroy(o);
+    }
+	public static void WorldTrackerDestroy(IntPtr o)
+    {
+        zappar_world_tracker_destroy(o);
     }
 
     // END AUTOGEN

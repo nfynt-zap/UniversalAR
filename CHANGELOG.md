@@ -4,6 +4,25 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2023-XX-XX
+### Added
+- New world tracking for WebGL platform.
+- Added support for YUY2 and uncompressed RGB24 and RGB32, video format input for windows webcam devices.
+
+### Fixed
+- Windows editor black camera texture on editor version 2022LTS, due to changed default color space from gamma to linear. Related [issue #23](https://github.com/zappar-xr/universal-ar-unity/issues/23).
+- Windows editor support for UTF8 multibyte encoding for camera names.
+
+### Known Issues
+- New world tracking not supported for native Android or iOS target.
+- Shader error for `Zappar/UnlitTexAndShadowSRP` on package import for built-in render pipeline. This doesn't effect the built-in project and can be simply ignored.
+
+
+## [3.2.4] - 2023-07-06
+### Added
+- Whitelisted `ngork-free` domain
+
+
 ## [3.2.3] - 2023-06-30
 ### Fixed
 - Some fixes and improvements for curved surface tracking.

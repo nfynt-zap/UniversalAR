@@ -91,13 +91,18 @@ namespace Zappar.Editor
 #endif
                 //Texture Compression
 #if UNITY_2021_2_OR_NEWER
-                if (EditorUserBuildSettings.webGLBuildSubtarget == WebGLTextureSubtarget.DXT)
+                if (EditorUserBuildSettings.webGLBuildSubtarget == WebGLTextureSubtarget.DXT || EditorUserBuildSettings.webGLBuildSubtarget == WebGLTextureSubtarget.Generic)
                 {
+#if UNITY_2022_2_OR_NEWER
+                    Debug.Log("Updating WebGL default TextureCompression to use ASTC, which is more widely supported on mobile devices. Change it from Player settings if not desired.");
+                    EditorUserBuildSettings.webGLBuildSubtarget = WebGLTextureSubtarget.ASTC;   //optimized for mobile builds
+#else
                     Debug.Log("Updating WebGL default TextureCompression to use ETC2, which is more widely supported on mobile devices. Change it from Player settings if not desired.");
                     EditorUserBuildSettings.webGLBuildSubtarget = WebGLTextureSubtarget.ETC2;   //optimized for mobile builds
+#endif
                 }
 #endif
-            }
+                }
 
             if (ZAssistant.MatchConfigSettings(config, ZProjectSettings.GraphicsOptimum))
             {
@@ -258,6 +263,21 @@ namespace Zappar.Editor
         public static GameObject GetZapparInstantTrackingTarget()
         {
             GameObject go = new GameObject("Zappar Instant Tracking Target", new[] { typeof(ZapparInstantTrackingTarget) });
+            return go;
+        }
+
+        public static GameObject GetZapparWorldTrackingTarget()
+        {
+            GameObject go = new GameObject("Zappar World Tracking Target", new[] { typeof(ZapparWorldTrackingTarget) });
+            GameObject child = new GameObject("GroundAnchor");
+            child.transform.SetParent(go.transform);
+            ZapparWorldTrackingTarget wt = go.GetComponent<ZapparWorldTrackingTarget>();
+            wt.InitScreenTexture = AssetDatabase.LoadAssetAtPath<Texture>("Packages/com.zappar.uar/Contents/phone.png");
+            wt.InitTextureTime = 2f;
+            wt.GroundAnchor = child.transform;
+            wt.IndicatorProps.PlacementTexture = AssetDatabase.LoadAssetAtPath<Texture>("Packages/com.zappar.uar/Contents/ring.png");
+            wt.IndicatorProps.AddShadow = true;
+            wt.IndicatorProps.Scale = .5f;
             return go;
         }
 

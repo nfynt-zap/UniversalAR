@@ -37,6 +37,7 @@ This repo is not open for public contributions. Please report an [issue](https:/
     + [Face Landmark](#face-landmark)
     + [Image Tracking](#image-tracking)
     + [Instant Tracking](#instant-tracking)
+    + [World Tracking](#world-tracking)
   * [Extras](#extras)
     + [Enabling Realtime Reflection](#enabling-realtime-reflection)
     + [Additional Packages](#additional-packages)
@@ -54,6 +55,7 @@ This repo is not open for public contributions. Please report an [issue](https:/
         * [Target File](#target-file)
         * [Image Anchors](#image-anchors)
       - [Instant World Tracking](#instant-world-tracking)
+      - [World Tracking](#world-tracking-type)
       - [Face Tracking](#face-tracking)
         * [Face Anchors](#face-anchors)
         * [Face Mesh](#face-mesh)
@@ -224,6 +226,9 @@ The camera object has a few options you may like to change:
 
 Remember to remove any other cameras you may have, or to mark the Zappar Camera as your primary/active camera.
 
+### Zappar Camera Background
+
+This class simply hooks into the Unity's rendering pipeline and injects the camera feed as background for AR.
 
 ### Face Tracking
 
@@ -272,9 +277,22 @@ You can then import the resulting `.zpt` file into the following folder `Assets/
 
 Use menu option `Zappar/Instant Tracking Target` to place Instant Tracking Target object into your hierarchy. Instant tracking refers to the ability to attach content to a point in the world (i.e. anchor), without using any tracking target like - image, face, etc. Simply attach your content as a child of the `Zappar Instant Tracking Target` GameObject and it will appear in the correct location. 
 
-The Zappar Instant Tracker prefab will keep the content in front of the camera using the `AnchorOffsetFromCamera` value until the user set the flag for `UserHasPlace`, at which point the content will appear to remain anchored in 3D space. By default this behavior is mapped to user tap event (`PlaceOnTouch`), which is optional and you can instead call `ZapparInstantTrackingTarget.PlaceTrackerAnchor`. You can override this behavior as you wish. Please refer to the [Instant Tracking API](#instant-world-tracking) section for further details.
+The Zappar Instant Tracker will keep the content in front of the camera using the `AnchorOffsetFromCamera` value until the user set the flag for `UserHasPlace`, at which point the content will appear to remain anchored in 3D space. By default this behavior is mapped to user tap event (`PlaceOnTouch`), which is optional and you can instead call `ZapparInstantTrackingTarget.PlaceTrackerAnchor`. You can override this behavior as you wish. Please refer to the [Instant Tracking API](#instant-world-tracking) section for further details.
 
-**Note that this tracking is not supported in the Editor mode, due to lack of sensory data required for SLAM!**
+
+### World Tracking
+
+Use menu option `Zappar/World Tracking Target` to place World Tracking Target object into your hierarchy. Compared to Instant tracking, World tracking offers more robust tracking and relocalization, which allows for pose recovery after losing track and preserving initial map. The only trade-off would be an additional initialization step which requires users to move their phone for building of local map of physical environment. Which is very similar to how other commercial SLAM systems work. Simply attach your content as a child of the `GroundAnchor` GameObject under `Zappar World Tracking Target` and it will appear in the correct location. 
+
+![World Tracking](./Temp~/world_track.jpg)
+
+To make the user flow intuitive and easy, the world tracking includes few configurable animation and prompts which you can choose to keep or customize as per your requirement. As soon as the world tracking target is created it needs to understand the user's physical 3D space, which we call the initialization step here. You can use `TrackerInitialized` flag from ZapparWorldTrackingTarget, this will be false when initialization is in progress. There's a handy initialization animation UI which guides the user to move their phone, you can customize the texture (`TrackerInitImage`) and speed (`AnimTime`) or disable the animation altogether from `ShowInitializationAnim` property.
+
+Once the world tracker has finished initialization, the `TrackerInitialized` flag will be set to true. Next step is to place the content over the tracked space, vaguely similar to Raycast-based object placement with Unity AR Foundation. However, here we only have one anchor which remains fixed in the 3D space and we place our content relative to it using `GroundAnchor` GameObject. By default there's a placement indicator options (`IndicatorProps`) that allows you to control the GroundAnchor placement with helpful UI, which can be customized or disabled altogether(`ShowPlacementIndicator`). The `PlacementTexture` is used as a placeholder UI placed over ground plane, you can control it's `Scale` and `AddShadow` for depth perception. The `Camera` is used for relative placement of the anchor, with `MinDist` and `MaxDist` defining the bounds for placement away from the `Camera`. By default `PlaceOnTouch` flag is set, which allows the anchor placement based on touch input anywhere on the screen. You can disable this flag and instead call `ZapparWorldTrackingTarget.PlaceTrackerAnchor` from script or button events to confirm the anchor placement as well. Use `ShowAnchorWithIndicator` flag to enable showing of GroundAnchor and its child hierarchy during placement to get better perception of object scale and placement.
+
+Lastly, there are few handy unity events - `OnInitializationComplete`, `OnGroundAnchorPlaced`, and `OnTrackingReset` which can be used for quickly plumbing into world tracking pipeline at key stages. If for some reason the anchor placement doesn't align properly, you can call `ZapparWorldTrackingTarget.ResetTrackerAnchor` which will reset the tracking and go back to the initialization step. Please refer to the [World Tracking API](#world-tracking-type) section for further details.
+
+**Note that this tracker does not support In-Editor mode, due to lack of sensory data required for SLAM! For debug purposes there's an additional In-Editor simulate option: `Switch to anchor placement` Button, which is shown in playmode for visualizing placement indicator for world tracking**
 
 ## Extras
 
@@ -530,6 +548,26 @@ Z.InstantWorldTrackerAnchorPoseSetFromCameraOffset(instantTracker,
 ```
 
 The parameters passed in to this function correspond to the X, Y and Z coordinates (in camera space) of the point to track. Choosing a position with X and Y coordinates of zero, and a negative Z coordinate, will select a point on a surface directly in front of the center of the screen.
+
+#### World Tracking Type
+
+To track content from a point on a surface in front of the user, create a new world tracker:
+
+```c#
+public void OnZapparInitialised(IntPtr pipeline) 
+{
+    IntPtr WorldTracker = Z.WorldTrackerCreate( pipeline );
+}
+```
+Immediately after creating a new new world tracker, it goes into the initialization mode which builds a local map of 3D space. During this phase you can check the quality of tracking type which can be - INITIALIZING, GOOD, or ORIENTATION_ONLY. To read the initialization and state of the tracker use
+```c#
+Z.WorldTrackerQuality(WorldTracker.Value)
+```
+Each world tracker exposes a single anchor called ground anchor, which is placed in the scanned 3D space as soon as the tracking quality changes to GOOD. To reset the scanned local map and tracking, use
+```c#
+Z.WorldTrackerReset(WorldTracker.Value)
+```
+
 
 #### Face Tracking
 

@@ -300,6 +300,18 @@ namespace Zappar.Editor
 
         #endregion
 
+        #region WorldTrackingMenu
+
+        [MenuItem("Zappar/World Tracking Target", false, 34)]
+        public static void ZapparCreateWorldTrackingTarget()
+        {
+            GameObject go = ZAssistant.GetZapparWorldTrackingTarget();
+            Undo.RegisterCreatedObjectUndo(go, "New world tracker");
+            Selection.activeGameObject = go;
+        }
+
+        #endregion
+
         #region AdditionalPackages
         [MenuItem("Zappar/Additional Git Packages/Import WebGL Save And Share", false, 90)]
         public static void ZapparAddSNSPackage()
@@ -445,7 +457,7 @@ namespace Zappar.Editor
             }
         }
 
-        [MenuItem("Zappar/Realtime Reflection Probe", false, 34)]
+        [MenuItem("Zappar/Realtime Reflection Probe", false, 45)]
         public static void CreateZapparReflectionProbe()
         {
             var settings = AssetDatabase.LoadAssetAtPath<ZapparUARSettings>(ZapparUARSettings.MySettingsPathInPackage);
