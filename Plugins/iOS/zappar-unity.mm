@@ -1,12 +1,10 @@
-#if defined(TARGET_OS_IPHONE)
-#if ZAPPAR_METAL_SUPPORT
-#import <Metal/Metal.h>
-#endif
+#if defined(TARGET_OS_IPHONE) || defined(TARGET_OS_IOS)
 #include <OpenGLES/ES2/gl.h>
-
 #import "UnityAppController.h"
 #include "zappar-unity.h"
-
+#ifdef ZAPPAR_METAL_SUPPORT
+#import <Metal/Metal.h>
+#endif
 #include <map>
 #include <utility>
 
@@ -15,7 +13,7 @@ static IUnityInterfaces* s_interface = 0;
 static zappar_pipeline_t s_pipeline = 0;
 
 static std::map<zappar_face_mesh_t,std::pair<void*,int>> s_faceMeshUnityVertexBuffers; //vertex buffer handle and count for each face mesh pipeline
-#if !ZAPPAR_METAL_SUPPORT && (TARGET_OS_IOS || TARGET_OS_IPHONE)
+#ifndef ZAPPAR_METAL_SUPPORT
 static std::map<zappar_face_mesh_t,void*> s_mVertexBuffers; //cpu bound buffer only required for GLES
 #endif
 // Used here for updating Unity face mesh vertex buffer natively. Do not change the layout!
@@ -80,7 +78,7 @@ extern "C" void zappar_pipeline_set(zappar_pipeline_t pipeline)
     s_pipeline = pipeline;
 }
 
-extern "C" void zappar_analytics_project_id_set(const char* id) {}
+extern "C" void zappar_analytics_project_id_set(const char* id, const char* uid) {}
 extern "C" void* zappar_pipeline_camera_frame_texture_dx11(zappar_pipeline_t o) { return 0; }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_set_unity_face_mesh_buffer(zappar_face_mesh_t faceMesh, void* vertexBufferHandle, int vertexCount)
@@ -90,7 +88,7 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_set_unity_face
         return;
     }
     s_faceMeshUnityVertexBuffers[faceMesh] = std::make_pair(vertexBufferHandle,vertexCount);
-#if !ZAPPAR_METAL_SUPPORT && (TARGET_OS_IOS || TARGET_OS_IPHONE)
+#ifndef ZAPPAR_METAL_SUPPORT
     if(s_mVertexBuffers.find(faceMesh)!=s_mVertexBuffers.end()) free(s_mVertexBuffers.find(faceMesh)->second);
         s_mVertexBuffers[faceMesh] = malloc(sizeof(MeshVertex)*vertexCount);
 #endif
@@ -101,7 +99,7 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar_clear_unity_fa
     auto it = s_faceMeshUnityVertexBuffers.find(faceMesh);
     if(it!=s_faceMeshUnityVertexBuffers.end())
         s_faceMeshUnityVertexBuffers.erase(it);
-#if !ZAPPAR_METAL_SUPPORT
+#ifndef ZAPPAR_METAL_SUPPORT
     auto it2 = s_mVertexBuffers.find(faceMesh);
     if(it2!=s_mVertexBuffers.end()){
         free(it2->second);
@@ -160,7 +158,7 @@ extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API zappar
 static void UNITY_INTERFACE_API OnNativeGLFaceMeshEvent(int eventID){
     if(s_interface==nullptr || eventID!=1011) return;
     if(s_device!=nullptr){ NSLog(@"Incorrect GL api being called when metal was selected"); return; }
-#if ZAPPAR_METAL_SUPPORT
+#ifdef ZAPPAR_METAL_SUPPORT
     return;
 #else
     for(auto& fmb : s_faceMeshUnityVertexBuffers) { 

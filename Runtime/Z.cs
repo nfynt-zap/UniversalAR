@@ -492,6 +492,7 @@ public class Z
     private static extern void zappar_instant_world_tracker_anchor_pose_set_from_camera_offset(IntPtr o, float x, float y, float z, uint orientation);
     
 
+    #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport(Config.PluginName)]
     private static extern IntPtr zappar_world_tracker_create(IntPtr pipeline);
         [DllImport(Config.PluginName)]
@@ -529,7 +530,7 @@ public class Z
     private static extern IntPtr zappar_world_tracker_ground_anchor_pose(IntPtr o, float[] camera_pose, int mirror);
     [DllImport(Config.PluginName)]
     private static extern void zappar_world_tracker_reset(IntPtr o);
-    
+    #endif
 
 // END AUTOGEN
 #pragma warning disable 0414
@@ -1899,28 +1900,42 @@ public class Z
         zappar_instant_world_tracker_anchor_pose_set_from_camera_offset(o, x, y, z, (uint)orientation);
         
     }
-	public static bool WorldTrackerEnabled(IntPtr o) {
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static bool WorldTrackerEnabled(IntPtr o) {
         
         int ret = zappar_world_tracker_enabled(o);
         return (ret == 1) ? true : false;
     }
-	public static void WorldTrackerEnabledSet(IntPtr o, bool enabled) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static void WorldTrackerEnabledSet(IntPtr o, bool enabled) {
         
 	
         zappar_world_tracker_enabled_set(o, enabled ? 1 : 0);
         
     }
-	public static int WorldTrackerQuality(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static int WorldTrackerQuality(IntPtr o) {
         
         int ret = zappar_world_tracker_quality(o);
         return ret;
     }
-	public static int WorldTrackerPlaneCount(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static int WorldTrackerPlaneCount(IntPtr o) {
         
         int ret = zappar_world_tracker_plane_count(o);
         return ret;
     }
-	public static Matrix4x4 WorldTrackerPlanePoseRaw(IntPtr o, int indx) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerPlanePoseRaw(IntPtr o, int indx) {
         
 	
         IntPtr ret = zappar_world_tracker_plane_pose_raw(o, indx);
@@ -1932,7 +1947,10 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static Matrix4x4 WorldTrackerPlanePoseCameraRelative(IntPtr o, int indx, bool mirror) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerPlanePoseCameraRelative(IntPtr o, int indx, bool mirror) {
         
 	
 	
@@ -1945,7 +1963,10 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static Matrix4x4 WorldTrackerPlanePose(IntPtr o, int indx, Matrix4x4 camera_pose, bool mirror) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerPlanePose(IntPtr o, int indx, Matrix4x4 camera_pose, bool mirror) {
         
 	
 	float[] arg_camera_pose = new float[16];
@@ -1962,12 +1983,18 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static bool WorldTrackerWorldAnchorValid(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static bool WorldTrackerWorldAnchorValid(IntPtr o) {
         
         int ret = zappar_world_tracker_world_anchor_valid(o);
         return (ret == 1) ? true : false;
     }
-	public static Matrix4x4 WorldTrackerWorldAnchorPoseRaw(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerWorldAnchorPoseRaw(IntPtr o) {
         
         IntPtr ret = zappar_world_tracker_world_anchor_pose_raw(o);
         float[] retFloats = new float[16];
@@ -1978,7 +2005,10 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static Matrix4x4 WorldTrackerWorldAnchorPoseCameraRelative(IntPtr o, bool mirror) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerWorldAnchorPoseCameraRelative(IntPtr o, bool mirror) {
         
 	
         IntPtr ret = zappar_world_tracker_world_anchor_pose_camera_relative(o, mirror ? 1 : 0);
@@ -1990,7 +2020,10 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static Matrix4x4 WorldTrackerWorldAnchorPose(IntPtr o, Matrix4x4 camera_pose, bool mirror) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerWorldAnchorPose(IntPtr o, Matrix4x4 camera_pose, bool mirror) {
         
 	float[] arg_camera_pose = new float[16];
         for (int i = 0; i < 4; i++)
@@ -2006,12 +2039,18 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static bool WorldTrackerGroundAnchorValid(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static bool WorldTrackerGroundAnchorValid(IntPtr o) {
         
         int ret = zappar_world_tracker_ground_anchor_valid(o);
         return (ret == 1) ? true : false;
     }
-	public static Matrix4x4 WorldTrackerGroundAnchorPoseRaw(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerGroundAnchorPoseRaw(IntPtr o) {
         
         IntPtr ret = zappar_world_tracker_ground_anchor_pose_raw(o);
         float[] retFloats = new float[16];
@@ -2022,7 +2061,10 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static Matrix4x4 WorldTrackerGroundAnchorPoseCameraRelative(IntPtr o, bool mirror) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerGroundAnchorPoseCameraRelative(IntPtr o, bool mirror) {
         
 	
         IntPtr ret = zappar_world_tracker_ground_anchor_pose_camera_relative(o, mirror ? 1 : 0);
@@ -2034,7 +2076,10 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static Matrix4x4 WorldTrackerGroundAnchorPose(IntPtr o, Matrix4x4 camera_pose, bool mirror) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static Matrix4x4 WorldTrackerGroundAnchorPose(IntPtr o, Matrix4x4 camera_pose, bool mirror) {
         
 	float[] arg_camera_pose = new float[16];
         for (int i = 0; i < 4; i++)
@@ -2050,11 +2095,15 @@ public class Z
                 retMatrix[k, i] = retFloats[i * 4 + k];
         return retMatrix;
     }
-	public static void WorldTrackerReset(IntPtr o) {
+    #endif
+	
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        public static void WorldTrackerReset(IntPtr o) {
         
         zappar_world_tracker_reset(o);
         
     }
+    #endif
     public static IntPtr PipelineCreate() 
     {
         return zappar_pipeline_create();
@@ -2091,10 +2140,13 @@ public class Z
     {
         return zappar_instant_world_tracker_create(pipeline);
     }
-	public static IntPtr WorldTrackerCreate(IntPtr pipeline) 
+	
+    #if UNITY_WEBGL && !UNITY_EDITOR
+    public static IntPtr WorldTrackerCreate(IntPtr pipeline) 
     {
         return zappar_world_tracker_create(pipeline);
     }
+    #endif
     public static void PipelineDestroy(IntPtr o)
     {
         zappar_pipeline_destroy(o);
@@ -2131,10 +2183,13 @@ public class Z
     {
         zappar_instant_world_tracker_destroy(o);
     }
-	public static void WorldTrackerDestroy(IntPtr o)
+	
+    #if UNITY_WEBGL && !UNITY_EDITOR
+    public static void WorldTrackerDestroy(IntPtr o)
     {
         zappar_world_tracker_destroy(o);
     }
+    #endif
 
     // END AUTOGEN
 
