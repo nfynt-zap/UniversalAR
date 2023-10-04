@@ -51,9 +51,9 @@ namespace Zappar
         [HideInInspector, SerializeField]
         private ZapparCamera m_zCamera;
         [HideInInspector, SerializeField]
-        public float MinDistance = 1.0f;
+        public float MinDistance = 0.01f;
         [HideInInspector, SerializeField]
-        public float MaxDistance = 5.0f;
+        public float MaxDistance = 1.0f;
 
 
         //private const float m_maxCameraRot = 40.0f;

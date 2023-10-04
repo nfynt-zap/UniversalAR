@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Windows editor black camera texture on editor version 2022LTS, due to changed default color space from gamma to linear. Related [issue #23](https://github.com/zappar-xr/universal-ar-unity/issues/23).
 - Windows editor support for UTF8 multibyte encoding for camera names.
 - Black frames on native android when switching between front and rear camera.
+- Appropriate handling of both `Gamma` and `Linear` color spaces across all platforms.
 
 ### Known Issues
 - New world tracking not supported for native Android or iOS target.
